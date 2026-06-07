@@ -43,58 +43,105 @@ def flow():
         print("encrypted_aes_key length =", len(encrypted_aes_key))
         print("iv length =", len(iv))
 
+        # Decrypt AES key using RSA private key
         aes_key = private_key.decrypt(
             encrypted_aes_key,
             padding.OAEP(
-                mgf=padding.MGF1(algorithm=hashes.SHA1()),
-                algorithm=hashes.SHA1(),
+                mgf=padding.MGF1(
+                    algorithm=hashes.SHA256()
+                ),
+                algorithm=hashes.SHA256(),
                 label=None
             )
         )
 
         print("AES KEY LENGTH =", len(aes_key))
 
-        # Create AES cipher
+        # Split ciphertext and tag
+        ciphertext = encrypted_flow_data[:-16]
+        tag = encrypted_flow_data[-16:]
+
+        print("CIPHERTEXT LENGTH =", len(ciphertext))
+        print("TAG LENGTH =", len(tag))
+
+        # Decrypt flow payload
         cipher = Cipher(
             algorithms.AES(aes_key),
-            modes.GCM(iv)
+            modes.GCM(iv, tag)
         )
 
         decryptor = cipher.decryptor()
 
-        decrypted = decryptor.update(
-            encrypted_flow_data
+        decrypted = (
+            decryptor.update(ciphertext)
+            + decryptor.finalize()
         )
 
         print("===== DECRYPTED DATA =====")
-        print(decrypted)
+        print(decrypted.decode())
 
-        response_data = {
-            "data": {
-                "vehicles": [
-                    {
-                        "id": "TN01AB1234",
-                        "title": "TN01AB1234"
-                    },
-                    {
-                        "id": "TN01CD5678",
-                        "title": "TN01CD5678"
-                    }
-                ]
+        flow_data = json.loads(
+            decrypted.decode()
+        )
+
+        action = flow_data.get("action")
+
+        print("ACTION =", action)
+
+        # Health check ping
+        if action == "ping":
+
+            response_data = {
+                "version": "3.0",
+                "data": {
+                    "status": "active"
+                }
             }
-        }
+
+        else:
+
+            response_data = {
+                "data": {
+                    "vehicles": [
+                        {
+                            "id": "TN01AB1234",
+                            "title": "TN01AB1234"
+                        },
+                        {
+                            "id": "TN01CD5678",
+                            "title": "TN01CD5678"
+                        }
+                    ]
+                }
+            }
 
         response_json = json.dumps(response_data)
 
-        encryptor = cipher.encryptor()
+        print("===== RESPONSE =====")
+        print(response_json)
 
-        encrypted_response = encryptor.update(
-            response_json.encode()
+        # Encrypt response
+        response_cipher = Cipher(
+            algorithms.AES(aes_key),
+            modes.GCM(iv)
         )
+
+        encryptor = response_cipher.encryptor()
+
+        encrypted_response = (
+            encryptor.update(
+                response_json.encode()
+            )
+            + encryptor.finalize()
+        )
+
+        encrypted_response += encryptor.tag
 
         response_base64 = base64.b64encode(
             encrypted_response
         ).decode()
+
+        print("===== RESPONSE SENT =====")
 
         return response_base64, 200
 
