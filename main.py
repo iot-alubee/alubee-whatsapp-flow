@@ -43,14 +43,11 @@ def flow():
         print("encrypted_aes_key length =", len(encrypted_aes_key))
         print("iv length =", len(iv))
 
-        # Decrypt AES key using OAEP
         aes_key = private_key.decrypt(
             encrypted_aes_key,
             padding.OAEP(
-                mgf=padding.MGF1(
-                    algorithm=hashes.SHA256()
-                ),
-                algorithm=hashes.SHA256(),
+                mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                algorithm=hashes.SHA1(),
                 label=None
             )
         )
