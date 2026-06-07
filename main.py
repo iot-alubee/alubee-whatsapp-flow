@@ -17,14 +17,15 @@ with open("private.pem", "rb") as f:
         password=None
     )
 
-# Print corresponding public key on startup
+# Print public key on startup
 public_key = private_key.public_key()
+
 pem = public_key.public_bytes(
     encoding=serialization.Encoding.PEM,
     format=serialization.PublicFormat.SubjectPublicKeyInfo
 )
 
-print("===== PUBLIC KEY FROM PRIVATE.PEM =====")
+print("===== PUBLIC KEY =====")
 print(pem.decode())
 
 
@@ -56,7 +57,7 @@ def flow():
 
         aes_key = None
 
-        # Try OAEP SHA256 first
+        # Try OAEP SHA256
         try:
 
             aes_key = private_key.decrypt(
@@ -72,39 +73,27 @@ def flow():
 
             print("RSA OAEP SHA256 SUCCESS")
 
-        except Exception as e:
+        except Exception:
 
             print("RSA OAEP SHA256 FAILED")
-            print(str(e))
 
-            try:
-
-                aes_key = private_key.decrypt(
-                    encrypted_aes_key,
-                    padding.OAEP(
-                        mgf=padding.MGF1(
-                            algorithm=hashes.SHA1()
-                        ),
-                        algorithm=hashes.SHA1(),
-                        label=None
-                    )
+            # Try OAEP SHA1
+            aes_key = private_key.decrypt(
+                encrypted_aes_key,
+                padding.OAEP(
+                    mgf=padding.MGF1(
+                        algorithm=hashes.SHA1()
+                    ),
+                    algorithm=hashes.SHA1(),
+                    label=None
                 )
+            )
 
-                print("RSA OAEP SHA1 SUCCESS")
-
-            except Exception as e2:
-
-                print("RSA OAEP SHA1 FAILED")
-                print(str(e2))
-
-                return jsonify({
-                    "success": False,
-                    "error": "Unable to decrypt AES key. Private key does not match Meta public key."
-                }), 500
+            print("RSA OAEP SHA1 SUCCESS")
 
         print("AES KEY LENGTH =", len(aes_key))
 
-        # Split GCM tag
+        # Split ciphertext and GCM tag
         ciphertext = encrypted_flow_data[:-16]
         tag = encrypted_flow_data[-16:]
 
@@ -123,27 +112,33 @@ def flow():
             + decryptor.finalize()
         )
 
+        decrypted_text = decrypted_data.decode("utf-8")
+
         print("\n===== DECRYPTED DATA =====")
-        print(decrypted_data.decode())
+        print(decrypted_text)
 
         flow_data = json.loads(
-            decrypted_data.decode()
+            decrypted_text
         )
+
+        print("FLOW DATA =", flow_data)
 
         action = flow_data.get("action")
 
-        print("ACTION =", action)
-
-        # WhatsApp health check
+        #
+        # HEALTH CHECK
+        #
         if action == "ping":
 
             response_data = {
-                "version": "3.0",
                 "data": {
                     "status": "active"
                 }
             }
 
+        #
+        # SAMPLE DATA RESPONSE
+        #
         else:
 
             response_data = {
@@ -166,17 +161,32 @@ def flow():
         print("\n===== RESPONSE JSON =====")
         print(response_json)
 
-        # Encrypt response
+        #
+        # IMPORTANT:
+        # Meta expects the response to be encrypted
+        # with the bitwise inverted IV.
+        #
+        response_iv = bytes(
+            [b ^ 0xFF for b in iv]
+        )
+
+        print("===== RESPONSE IV =====")
+        print(
+            base64.b64encode(
+                response_iv
+            ).decode()
+        )
+
         response_cipher = Cipher(
             algorithms.AES(aes_key),
-            modes.GCM(iv)
+            modes.GCM(response_iv)
         )
 
         encryptor = response_cipher.encryptor()
 
         encrypted_response = (
             encryptor.update(
-                response_json.encode()
+                response_json.encode("utf-8")
             )
             + encryptor.finalize()
         )
@@ -187,27 +197,37 @@ def flow():
             encrypted_response
         ).decode()
 
-        print("Response encrypted successfully")
+        print("===== RESPONSE SENT =====")
 
-        return response_base64, 200
+        return (
+            response_base64,
+            200,
+            {
+                "Content-Type": "text/plain"
+            }
+        )
 
     except Exception:
 
         print("\n===== ERROR =====")
         print(traceback.format_exc())
 
-        return jsonify({
-            "success": False,
-            "error": traceback.format_exc()
-        }), 500
+        return jsonify(
+            {
+                "success": False,
+                "error": traceback.format_exc()
+            }
+        ), 500
 
 
 @app.route("/", methods=["GET"])
 def health():
+
     return "OK", 200
 
 
 if __name__ == "__main__":
+
     app.run(
         host="0.0.0.0",
         port=8080
