@@ -3,12 +3,14 @@ import base64
 import json
 import traceback
 
+from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 app = Flask(__name__)
 
+# Load private key
 with open("private.pem", "rb") as f:
     private_key = load_pem_private_key(
         f.read(),
@@ -22,7 +24,7 @@ def flow():
 
         body = request.json
 
-        print("REQUEST RECEIVED")
+        print("===== REQUEST RECEIVED =====")
         print(body)
 
         encrypted_flow_data = base64.b64decode(
@@ -41,14 +43,21 @@ def flow():
         print("encrypted_aes_key length =", len(encrypted_aes_key))
         print("iv length =", len(iv))
 
+        # Decrypt AES key using OAEP
         aes_key = private_key.decrypt(
             encrypted_aes_key,
-            padding.PKCS1v15()
+            padding.OAEP(
+                mgf=padding.MGF1(
+                    algorithm=hashes.SHA256()
+                ),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
         )
 
         print("AES KEY LENGTH =", len(aes_key))
-        print("AES KEY =", aes_key)
 
+        # Create AES cipher
         cipher = Cipher(
             algorithms.AES(aes_key),
             modes.GCM(iv)
@@ -60,7 +69,7 @@ def flow():
             encrypted_flow_data
         )
 
-        print("DECRYPTED DATA:")
+        print("===== DECRYPTED DATA =====")
         print(decrypted)
 
         response_data = {
@@ -86,12 +95,15 @@ def flow():
             response_json.encode()
         )
 
-        return base64.b64encode(
+        response_base64 = base64.b64encode(
             encrypted_response
-        )
+        ).decode()
+
+        return response_base64, 200
 
     except Exception as e:
-        print("ERROR:")
+
+        print("===== ERROR =====")
         print(traceback.format_exc())
 
         return jsonify({
@@ -106,4 +118,7 @@ def health():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+    app.run(
+        host="0.0.0.0",
+        port=8080
+    )
