@@ -34,18 +34,11 @@
         "type": "SingleColumnLayout",
         "children": [
           {
-            "type": "TextHeading",
-            "text": "On Duty request"
-          },
-          {
-            "type": "TextBody",
-            "text": "Choose visiting location and whether you need a company vehicle."
-          },
-          {
             "type": "RadioButtonsGroup",
             "name": "od_reason",
-            "label": "Visiting to",
+            "label": "Visiting to?",
             "required": true,
+            "init-value": "unit_i",
             "data-source": [
               { "id": "unit_i", "title": "Unit I" },
               { "id": "unit_ii", "title": "Unit II" },
@@ -72,6 +65,7 @@
             "name": "company_vehicle",
             "label": "Company vehicle?",
             "required": true,
+            "init-value": "no",
             "data-source": [
               { "id": "no", "title": "No" },
               { "id": "yes", "title": "Yes" }

@@ -9,6 +9,7 @@ from vehicles import fetch_available_vehicles
 logger = logging.getLogger(__name__)
 
 OD_SCREEN = "OD_FORM"
+OD_DEFAULT_FORM = {"od_reason": "unit_i", "company_vehicle": "no"}
 
 
 def _pick(data: dict, key: str) -> str:
@@ -27,12 +28,12 @@ def _screen_data(form_data: dict) -> dict:
     is_vehicle_visible = False
 
     if company_vehicle == "yes":
+        is_vehicle_visible = True
         try:
             vehicles = fetch_available_vehicles()
         except Exception:
             logger.exception("fetch_available_vehicles failed")
             vehicles = []
-        is_vehicle_visible = bool(vehicles)
 
     return {
         "show_other_reason": show_other_reason,
@@ -42,11 +43,7 @@ def _screen_data(form_data: dict) -> dict:
 
 
 def _default_screen_data() -> dict:
-    return {
-        "show_other_reason": False,
-        "is_vehicle_visible": False,
-        "vehicles": [],
-    }
+    return _screen_data(OD_DEFAULT_FORM)
 
 
 def build_od_flow_response(flow_data: dict) -> dict:
@@ -57,11 +54,14 @@ def build_od_flow_response(flow_data: dict) -> dict:
     if action == "ping":
         return {"version": "3.0", "data": {"status": "active"}}
 
-    try:
-        data = _screen_data(form_data)
-    except Exception:
-        logger.exception("screen data build failed action=%s data=%s", action, form_data)
+    if action == "init":
         data = _default_screen_data()
+    else:
+        try:
+            data = _screen_data(form_data)
+        except Exception:
+            logger.exception("screen data build failed action=%s data=%s", action, form_data)
+            data = _default_screen_data()
 
     logger.info(
         "flow response action=%s show_other=%s vehicle_visible=%s vehicle_count=%s",
