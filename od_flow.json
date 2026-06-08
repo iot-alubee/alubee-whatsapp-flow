@@ -2,17 +2,26 @@
   "version": "7.2",
   "data_api_version": "3.0",
   "routing_model": {
-    "OD_FORM": ["OD_SIMPLE", "OD_OTHER", "OD_VEHICLE", "OD_OTHER_VEHICLE"],
-    "OD_SIMPLE": [],
-    "OD_OTHER": [],
-    "OD_VEHICLE": [],
-    "OD_OTHER_VEHICLE": []
+    "OD_FORM": []
   },
   "screens": [
     {
       "id": "OD_FORM",
       "title": "OD Request",
-      "data": {},
+      "terminal": true,
+      "data": {
+        "vehicles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" }
+            }
+          },
+          "__example__": []
+        }
+      },
       "layout": {
         "type": "SingleColumnLayout",
         "children": [
@@ -21,141 +30,48 @@
             "name": "od_reason",
             "label": "Visiting to?",
             "required": true,
-            "init-value": "unit_i",
             "data-source": [
               { "id": "unit_i", "title": "Unit I" },
               { "id": "unit_ii", "title": "Unit II" },
               { "id": "other", "title": "Other" }
-            ]
-          },
-          {
-            "type": "RadioButtonsGroup",
-            "name": "company_vehicle",
-            "label": "Company vehicle?",
-            "required": true,
-            "init-value": "no",
-            "data-source": [
-              { "id": "no", "title": "No" },
-              { "id": "yes", "title": "Yes" }
-            ]
-          },
-          {
-            "type": "Footer",
-            "label": "Continue",
-            "on-click-action": {
+            ],
+            "on-select-action": {
               "name": "data_exchange",
               "payload": {
                 "od_reason": "${form.od_reason}",
                 "company_vehicle": "${form.company_vehicle}"
               }
             }
-          }
-        ]
-      }
-    },
-    {
-      "id": "OD_SIMPLE",
-      "title": "OD Request",
-      "terminal": true,
-      "data": {
-        "od_reason": {
-          "type": "string",
-          "__example__": "unit_i"
-        },
-        "company_vehicle": {
-          "type": "string",
-          "__example__": "no"
-        }
-      },
-      "layout": {
-        "type": "SingleColumnLayout",
-        "children": [
-          {
-            "type": "Footer",
-            "label": "Submit",
-            "on-click-action": {
-              "name": "complete",
-              "payload": {
-                "od_reason": "${data.od_reason}",
-                "company_vehicle": "${data.company_vehicle}"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "id": "OD_OTHER",
-      "title": "OD Request",
-      "terminal": true,
-      "data": {
-        "od_reason": {
-          "type": "string",
-          "__example__": "other"
-        },
-        "company_vehicle": {
-          "type": "string",
-          "__example__": "no"
-        }
-      },
-      "layout": {
-        "type": "SingleColumnLayout",
-        "children": [
+          },
           {
             "type": "TextInput",
             "name": "other_reason",
             "label": "Enter reason",
             "input-type": "text",
-            "required": true
+            "required": false
           },
           {
-            "type": "Footer",
-            "label": "Submit",
-            "on-click-action": {
-              "name": "complete",
+            "type": "RadioButtonsGroup",
+            "name": "company_vehicle",
+            "label": "Company vehicle?",
+            "required": true,
+            "data-source": [
+              { "id": "no", "title": "No" },
+              { "id": "yes", "title": "Yes" }
+            ],
+            "on-select-action": {
+              "name": "data_exchange",
               "payload": {
-                "od_reason": "${data.od_reason}",
-                "other_reason": "${form.other_reason}",
-                "company_vehicle": "${data.company_vehicle}"
+                "od_reason": "${form.od_reason}",
+                "company_vehicle": "${form.company_vehicle}"
               }
             }
-          }
-        ]
-      }
-    },
-    {
-      "id": "OD_VEHICLE",
-      "title": "OD Request",
-      "terminal": true,
-      "data": {
-        "od_reason": {
-          "type": "string",
-          "__example__": "unit_i"
-        },
-        "company_vehicle": {
-          "type": "string",
-          "__example__": "yes"
-        },
-        "vehicles": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "id": { "type": "string" },
-              "title": { "type": "string" }
-            }
           },
-          "__example__": []
-        }
-      },
-      "layout": {
-        "type": "SingleColumnLayout",
-        "children": [
           {
             "type": "Dropdown",
             "name": "vehicle",
             "label": "Select vehicle",
-            "required": true,
+            "required": false,
             "data-source": "${data.vehicles}"
           },
           {
@@ -164,66 +80,9 @@
             "on-click-action": {
               "name": "complete",
               "payload": {
-                "od_reason": "${data.od_reason}",
-                "company_vehicle": "${data.company_vehicle}",
-                "vehicle": "${form.vehicle}"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "id": "OD_OTHER_VEHICLE",
-      "title": "OD Request",
-      "terminal": true,
-      "data": {
-        "od_reason": {
-          "type": "string",
-          "__example__": "other"
-        },
-        "company_vehicle": {
-          "type": "string",
-          "__example__": "yes"
-        },
-        "vehicles": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "id": { "type": "string" },
-              "title": { "type": "string" }
-            }
-          },
-          "__example__": []
-        }
-      },
-      "layout": {
-        "type": "SingleColumnLayout",
-        "children": [
-          {
-            "type": "TextInput",
-            "name": "other_reason",
-            "label": "Enter reason",
-            "input-type": "text",
-            "required": true
-          },
-          {
-            "type": "Dropdown",
-            "name": "vehicle",
-            "label": "Select vehicle",
-            "required": true,
-            "data-source": "${data.vehicles}"
-          },
-          {
-            "type": "Footer",
-            "label": "Submit",
-            "on-click-action": {
-              "name": "complete",
-              "payload": {
-                "od_reason": "${data.od_reason}",
+                "od_reason": "${form.od_reason}",
                 "other_reason": "${form.other_reason}",
-                "company_vehicle": "${data.company_vehicle}",
+                "company_vehicle": "${form.company_vehicle}",
                 "vehicle": "${form.vehicle}"
               }
             }
