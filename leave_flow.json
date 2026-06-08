@@ -1,0 +1,101 @@
+{
+  "version": "7.2",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "LEAVE_FORM": []
+  },
+  "screens": [
+    {
+      "id": "LEAVE_FORM",
+      "title": "Leave Request",
+      "terminal": true,
+      "data": {
+        "show_date_range": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "show_other_reason": {
+          "type": "boolean",
+          "__example__": false
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "RadioButtonsGroup",
+            "name": "leave_when",
+            "label": "When is your leave?",
+            "required": true,
+            "data-source": [
+              { "id": "today", "title": "Today" },
+              { "id": "tomorrow", "title": "Tomorrow" },
+              { "id": "other", "title": "Other" }
+            ],
+            "on-select-action": {
+              "name": "data_exchange",
+              "payload": {
+                "leave_when": "${form.leave_when}",
+                "leave_reason": "${form.leave_reason}"
+              }
+            }
+          },
+          {
+            "type": "DatePicker",
+            "name": "from_date",
+            "label": "From date",
+            "required": "${data.show_date_range}",
+            "visible": "${data.show_date_range}"
+          },
+          {
+            "type": "DatePicker",
+            "name": "to_date",
+            "label": "To date",
+            "required": "${data.show_date_range}",
+            "visible": "${data.show_date_range}"
+          },
+          {
+            "type": "RadioButtonsGroup",
+            "name": "leave_reason",
+            "label": "Leave reason",
+            "required": true,
+            "data-source": [
+              { "id": "sick_leave", "title": "Sick Leave" },
+              { "id": "casual_leave", "title": "Casual Leave" },
+              { "id": "other", "title": "Other" }
+            ],
+            "on-select-action": {
+              "name": "data_exchange",
+              "payload": {
+                "leave_when": "${form.leave_when}",
+                "leave_reason": "${form.leave_reason}"
+              }
+            }
+          },
+          {
+            "type": "TextInput",
+            "name": "other_reason",
+            "label": "Enter reason",
+            "input-type": "text",
+            "required": "${data.show_other_reason}",
+            "visible": "${data.show_other_reason}"
+          },
+          {
+            "type": "Footer",
+            "label": "Submit",
+            "on-click-action": {
+              "name": "complete",
+              "payload": {
+                "leave_when": "${form.leave_when}",
+                "from_date": "${form.from_date}",
+                "to_date": "${form.to_date}",
+                "leave_reason": "${form.leave_reason}",
+                "other_reason": "${form.other_reason}"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

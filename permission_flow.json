@@ -1,0 +1,101 @@
+{
+  "version": "7.2",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "PERMISSION_FORM": []
+  },
+  "screens": [
+    {
+      "id": "PERMISSION_FORM",
+      "title": "Permission Request",
+      "terminal": true,
+      "data": {
+        "show_cl_name": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "show_shift": {
+          "type": "boolean",
+          "__example__": true
+        },
+        "show_type": {
+          "type": "boolean",
+          "__example__": true
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "RadioButtonsGroup",
+            "name": "permission_for",
+            "label": "Permission for",
+            "required": true,
+            "data-source": [
+              { "id": "myself", "title": "For Myself" },
+              { "id": "cl", "title": "For CL" }
+            ],
+            "on-select-action": {
+              "name": "data_exchange",
+              "payload": {
+                "permission_for": "${form.permission_for}"
+              }
+            }
+          },
+          {
+            "type": "TextInput",
+            "name": "cl_employee_name",
+            "label": "Employee name",
+            "input-type": "text",
+            "required": "${data.show_cl_name}",
+            "visible": "${data.show_cl_name}"
+          },
+          {
+            "type": "RadioButtonsGroup",
+            "name": "permission_shift",
+            "label": "Shift",
+            "required": "${data.show_shift}",
+            "visible": "${data.show_shift}",
+            "data-source": [
+              { "id": "shift_i", "title": "Shift I" },
+              { "id": "shift_ii", "title": "Shift II" }
+            ]
+          },
+          {
+            "type": "RadioButtonsGroup",
+            "name": "permission_type",
+            "label": "Permission type",
+            "required": "${data.show_type}",
+            "visible": "${data.show_type}",
+            "data-source": [
+              { "id": "late_in", "title": "Late IN" },
+              { "id": "early_out", "title": "Early OUT" },
+              { "id": "other", "title": "Other" }
+            ]
+          },
+          {
+            "type": "TextInput",
+            "name": "reason",
+            "label": "Reason",
+            "input-type": "text",
+            "required": true
+          },
+          {
+            "type": "Footer",
+            "label": "Submit",
+            "on-click-action": {
+              "name": "complete",
+              "payload": {
+                "permission_for": "${form.permission_for}",
+                "cl_employee_name": "${form.cl_employee_name}",
+                "permission_shift": "${form.permission_shift}",
+                "permission_type": "${form.permission_type}",
+                "reason": "${form.reason}"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
