@@ -1,7 +1,7 @@
-# OD WhatsApp Flow — setup (experimental, separate from main bot)
+# WhatsApp Flow endpoint (OD + Visitor forms)
 
-**Does not change** the live OD / visitor / leave / permission chat flows in `Interakt/`.  
-This folder is only the Flow **data endpoint** for testing dynamic form fields (e.g. vehicles).
+**Does not change** the live chat flows in `Interakt/Production/` unless you enable form menu options.  
+This folder is the shared Flow **data endpoint** (`POST /flow`) for OD and Visitor forms.
 
 ## What this folder is
 
@@ -13,7 +13,9 @@ The parent `Interakt/` bot sends **OD - Form** from the menu when `OD_FLOW_TEMPL
 | File | Purpose |
 |------|---------|
 | `main.py` | Flask `/flow` endpoint (encrypt/decrypt) |
-| `od_flow.json` | Import into Meta Flow Builder (OD form layout) |
+| `od_flow.json` | Import into Meta Flow Builder (OD form) |
+| `visitor_flow.json` | Import into Meta Flow Builder (Visitor form) |
+| `flow_dispatch.py` | Routes `OD_FORM` vs `VISITOR_FORM` screens |
 | `private.pem` | Your RSA private key (do not commit) |
 | `vehicles.py` | Reads `vehicles` collection; excludes vehicles already OUT at gate |
 
@@ -28,8 +30,8 @@ Upload **public.pem** in Meta Flow Builder → Endpoint → Public key.
 
 ## 2. Publish flow in Meta / Interakt
 
-1. Create flow → **Import JSON** → paste `od_flow.json` (or rebuild matching screens).
-2. Set endpoint URL: `https://YOUR-FLOW-SERVICE.run.app/flow`
+1. Create **two** flows in Meta (or one at a time) → **Import JSON** → `od_flow.json` and `visitor_flow.json`.
+2. Set the **same** endpoint URL on both: `https://YOUR-FLOW-SERVICE.run.app/flow`
 3. Run **Ping** test — should return `active`.
 4. Publish flow.
 
@@ -51,9 +53,10 @@ Grant the Cloud Run service account **Cloud Datastore User** on `whatsapp-approv
 Use Meta Flow Builder **Ping** and open the form from a test template linked to this endpoint.  
 Vehicle dropdown loads when **Company vehicle = Yes**.
 
-Form submit is handled by parent `Interakt/od_request.py` → same JMD → MD approval as chat OD.
+- OD submit → `od_request.py` → same JMD → MD approval as chat OD.
+- Visitor submit → `visitor_request.py` → same JMD → MD → OTP as chat visitor.
 
-**Full walkthrough:** see `../OD_FORM_SETUP.md`.
+**OD walkthrough:** see `../OD_FORM_SETUP.md`.
 
 ## 5. Test vehicles
 

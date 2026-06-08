@@ -5,7 +5,7 @@ from flask import Flask, request
 from cryptography.hazmat.primitives import serialization
 
 from flow_crypto import decrypt_request, encrypt_response, load_private_key
-from od_flow_handler import build_od_flow_response
+from flow_dispatch import build_flow_response
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ def flow():
             list((flow_data.get("data") or {}).keys()),
         )
 
-        response_data = build_od_flow_response(flow_data)
+        response_data = build_flow_response(flow_data)
         encrypted = encrypt_response(response_data, aes_key, iv)
         return encrypted, 200, {"Content-Type": "text/plain"}
 
