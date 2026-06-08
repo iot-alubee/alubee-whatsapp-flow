@@ -10,6 +10,25 @@
       "title": "Permission Request",
       "terminal": true,
       "data": {
+        "is_supervisor": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "show_permission_for": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "permission_for_options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" }
+            }
+          },
+          "__example__": []
+        },
         "show_cl_name": {
           "type": "boolean",
           "__example__": false
@@ -30,15 +49,14 @@
             "type": "RadioButtonsGroup",
             "name": "permission_for",
             "label": "Permission for",
-            "required": true,
-            "data-source": [
-              { "id": "myself", "title": "For Myself" },
-              { "id": "cl", "title": "For CL" }
-            ],
+            "required": "${data.show_permission_for}",
+            "visible": "${data.show_permission_for}",
+            "data-source": "${data.permission_for_options}",
             "on-select-action": {
               "name": "data_exchange",
               "payload": {
-                "permission_for": "${form.permission_for}"
+                "permission_for": "${form.permission_for}",
+                "is_supervisor": "${data.is_supervisor}"
               }
             }
           },
