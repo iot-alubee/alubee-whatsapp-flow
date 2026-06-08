@@ -10,6 +10,14 @@
       "title": "OD Request",
       "terminal": true,
       "data": {
+        "show_other_reason": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "is_vehicle_visible": {
+          "type": "boolean",
+          "__example__": false
+        },
         "vehicles": {
           "type": "array",
           "items": {
@@ -48,7 +56,8 @@
             "name": "other_reason",
             "label": "Enter reason",
             "input-type": "text",
-            "required": false
+            "required": "${data.show_other_reason}",
+            "visible": "${data.show_other_reason}"
           },
           {
             "type": "RadioButtonsGroup",
@@ -71,7 +80,8 @@
             "type": "Dropdown",
             "name": "vehicle",
             "label": "Select vehicle",
-            "required": false,
+            "required": "${data.is_vehicle_visible}",
+            "visible": "${data.is_vehicle_visible}",
             "data-source": "${data.vehicles}"
           },
           {
