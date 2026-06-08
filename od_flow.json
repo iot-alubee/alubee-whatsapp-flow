@@ -1,0 +1,112 @@
+{
+  "version": "7.2",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "OD_FORM": []
+  },
+  "screens": [
+    {
+      "id": "OD_FORM",
+      "title": "OD Request",
+      "terminal": true,
+      "data": {
+        "show_other_reason": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "is_vehicle_visible": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "vehicles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" }
+            }
+          },
+          "__example__": []
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "On Duty request"
+          },
+          {
+            "type": "TextBody",
+            "text": "Choose visiting location and whether you need a company vehicle."
+          },
+          {
+            "type": "RadioButtonsGroup",
+            "name": "od_reason",
+            "label": "Visiting to",
+            "required": true,
+            "data-source": [
+              { "id": "unit_i", "title": "Unit I" },
+              { "id": "unit_ii", "title": "Unit II" },
+              { "id": "other", "title": "Other" }
+            ],
+            "on-select-action": {
+              "name": "data_exchange",
+              "payload": {
+                "od_reason": "${form.od_reason}",
+                "company_vehicle": "${form.company_vehicle}"
+              }
+            }
+          },
+          {
+            "type": "TextInput",
+            "name": "other_reason",
+            "label": "Enter reason",
+            "input-type": "text",
+            "required": "${data.show_other_reason}",
+            "visible": "${data.show_other_reason}"
+          },
+          {
+            "type": "RadioButtonsGroup",
+            "name": "company_vehicle",
+            "label": "Company vehicle?",
+            "required": true,
+            "data-source": [
+              { "id": "no", "title": "No" },
+              { "id": "yes", "title": "Yes" }
+            ],
+            "on-select-action": {
+              "name": "data_exchange",
+              "payload": {
+                "od_reason": "${form.od_reason}",
+                "company_vehicle": "${form.company_vehicle}"
+              }
+            }
+          },
+          {
+            "type": "Dropdown",
+            "name": "vehicle",
+            "label": "Select vehicle",
+            "required": "${data.is_vehicle_visible}",
+            "visible": "${data.is_vehicle_visible}",
+            "data-source": "${data.vehicles}"
+          },
+          {
+            "type": "Footer",
+            "label": "Submit",
+            "on-click-action": {
+              "name": "complete",
+              "payload": {
+                "od_reason": "${form.od_reason}",
+                "other_reason": "${form.other_reason}",
+                "company_vehicle": "${form.company_vehicle}",
+                "vehicle": "${form.vehicle}"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
