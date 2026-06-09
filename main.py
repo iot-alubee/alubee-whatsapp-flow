@@ -39,6 +39,11 @@ def flow():
         )
 
         response_data = build_flow_response(flow_data)
+        logger.info(
+            "flow response screen=%s data_keys=%s",
+            response_data.get("screen"),
+            list((response_data.get("data") or {}).keys()),
+        )
         encrypted = encrypt_response(response_data, aes_key, iv)
         return encrypted, 200, {"Content-Type": "text/plain"}
 
