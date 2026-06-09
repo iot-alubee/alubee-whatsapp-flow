@@ -16,10 +16,7 @@ logger = logging.getLogger(__name__)
 
 PERMISSION_SCREEN = "PERMISSION_FORM"
 
-_SUPERVISOR_OPTIONS = [
-    {"id": "myself", "title": "For Myself"},
-    {"id": "cl", "title": "For CL"},
-]
+_LOAD_ACTIONS = frozenset({"init", "navigate", "data_exchange"})
 
 
 def _pick(data: dict, key: str) -> str:
@@ -39,7 +36,11 @@ def _is_supervisor_flag(data: dict) -> bool:
 
 
 def _expand_form_data(form_data: dict) -> dict:
-    merged = dict(form_data or {})
+    merged = {
+        k: v
+        for k, v in (form_data or {}).items()
+        if k not in ("error", "error_message")
+    }
     fad = merged.get("flow_action_data")
     if isinstance(fad, str) and fad.strip().startswith("{"):
         try:
@@ -98,9 +99,7 @@ def _screen_data(flow_data: dict, form_data: dict) -> dict:
     is_cl = permission_for == "cl"
     show_shift = _needs_shift(phone, permission_for)
     return {
-        "is_supervisor": is_supervisor,
         "show_permission_for": is_supervisor,
-        "permission_for_options": _SUPERVISOR_OPTIONS if is_supervisor else [],
         "show_cl_name": is_cl,
         "show_shift": show_shift,
         "show_type": not is_cl,
@@ -110,12 +109,15 @@ def _screen_data(flow_data: dict, form_data: dict) -> dict:
 def build_permission_flow_response(flow_data: dict) -> dict:
     action = (flow_data.get("action") or "").strip().lower()
     screen = (flow_data.get("screen") or "").strip() or PERMISSION_SCREEN
-    if action == "init":
+    if action in ("init", "navigate"):
         screen = PERMISSION_SCREEN
     form_data = flow_data.get("data") if isinstance(flow_data.get("data"), dict) else {}
 
     if action == "ping":
         return {"version": "3.0", "data": {"status": "active"}}
+
+    if action not in _LOAD_ACTIONS:
+        logger.warning("permission flow unexpected action=%s", action)
 
     try:
         data = _screen_data(flow_data, form_data)
@@ -127,20 +129,20 @@ def build_permission_flow_response(flow_data: dict) -> dict:
             form_data,
         )
         data = {
-            "is_supervisor": False,
             "show_permission_for": False,
-            "permission_for_options": [],
             "show_cl_name": False,
             "show_shift": True,
             "show_type": True,
         }
 
+    is_supervisor, phone = _resolve_is_supervisor(flow_data, _expand_form_data(form_data))
     logger.info(
-        "permission flow response action=%s token=%s supervisor=%s show_for=%s "
-        "show_shift=%s show_cl=%s show_type=%s",
+        "permission flow response action=%s token=%s phone=%s supervisor=%s "
+        "show_for=%s show_shift=%s show_cl=%s show_type=%s",
         action,
         flow_data.get("flow_token"),
-        data.get("is_supervisor"),
+        phone,
+        is_supervisor,
         data.get("show_permission_for"),
         data.get("show_shift"),
         data.get("show_cl_name"),
