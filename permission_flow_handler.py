@@ -14,10 +14,18 @@ from users import (
 
 logger = logging.getLogger(__name__)
 
-SCREEN_SELF = "PERMISSION_SELF"
-SCREEN_SUPERVISOR = "PERMISSION_SUPERVISOR"
+SCREEN_FORM = "PERMISSION_FORM"
+SCREEN_NO_ACCESS = "PERMISSION_NO_ACCESS"
 
 _LOAD_ACTIONS = frozenset({"init", "navigate", "data_exchange"})
+
+# Before user picks For Myself / For CL — only the radio is shown.
+_HIDDEN = {
+    "show_cl_name": False,
+    "show_shift": False,
+    "show_type": False,
+    "show_reason": False,
+}
 
 
 def _pick(data: dict, key: str) -> str:
@@ -91,27 +99,23 @@ def _needs_shift(phone: str, permission_for: str) -> bool:
         return True
 
 
-def _self_screen_data(phone: str) -> dict:
-    return {"show_shift": _needs_shift(phone, "myself")}
-
-
-def _supervisor_screen_data(flow_data: dict, form_data: dict) -> dict:
-    expanded = _expand_form_data(form_data)
-    _, phone = _resolve_is_supervisor(flow_data, expanded)
-    permission_for = _pick(expanded, "permission_for") or "myself"
-    is_cl = permission_for == "cl"
+def _myself_form_data(phone: str) -> dict:
+    show_shift = _needs_shift(phone, "myself")
     return {
-        "show_cl_name": is_cl,
-        "show_shift": _needs_shift(phone, permission_for),
-        "show_type": not is_cl,
+        "show_cl_name": False,
+        "show_shift": show_shift,
+        "show_type": True,
+        "show_reason": True,
     }
 
 
-def _entry_screen(flow_data: dict, form_data: dict) -> tuple[str, dict]:
-    is_supervisor, phone = _resolve_is_supervisor(flow_data, form_data)
-    if is_supervisor:
-        return SCREEN_SUPERVISOR, _supervisor_screen_data(flow_data, form_data)
-    return SCREEN_SELF, _self_screen_data(phone)
+def _cl_form_data(phone: str) -> dict:
+    return {
+        "show_cl_name": True,
+        "show_shift": True,
+        "show_type": False,
+        "show_reason": True,
+    }
 
 
 def build_permission_flow_response(flow_data: dict) -> dict:
@@ -127,18 +131,26 @@ def build_permission_flow_response(flow_data: dict) -> dict:
         logger.warning("permission flow unexpected action=%s", action)
 
     is_supervisor, phone = _resolve_is_supervisor(flow_data, expanded)
+    permission_for = _pick(expanded, "permission_for")
 
     try:
         if action in ("init", "navigate"):
-            screen, data = _entry_screen(flow_data, expanded)
-        elif screen == SCREEN_SUPERVISOR or (
-            screen not in (SCREEN_SELF, SCREEN_SUPERVISOR) and is_supervisor
-        ):
-            screen = SCREEN_SUPERVISOR
-            data = _supervisor_screen_data(flow_data, expanded)
+            screen = SCREEN_FORM
+            data = dict(_HIDDEN)
+        elif permission_for == "cl" and not is_supervisor:
+            screen = SCREEN_NO_ACCESS
+            data = {}
+        elif permission_for == "cl":
+            screen = SCREEN_FORM
+            data = _cl_form_data(phone)
+        elif permission_for == "myself":
+            screen = SCREEN_FORM
+            data = _myself_form_data(phone)
+        elif screen == SCREEN_NO_ACCESS:
+            data = {}
         else:
-            screen = SCREEN_SELF
-            data = _self_screen_data(phone)
+            screen = SCREEN_FORM
+            data = dict(_HIDDEN)
     except Exception:
         logger.exception(
             "permission screen data failed action=%s token=%s data=%s",
@@ -146,20 +158,19 @@ def build_permission_flow_response(flow_data: dict) -> dict:
             flow_data.get("flow_token"),
             form_data,
         )
-        screen = SCREEN_SELF
-        data = {"show_shift": True}
+        screen = SCREEN_FORM
+        data = dict(_HIDDEN)
 
     logger.info(
         "permission flow response action=%s token=%s phone=%s supervisor=%s "
-        "screen=%s show_shift=%s show_cl=%s show_type=%s",
+        "for=%s screen=%s data=%s",
         action,
         flow_data.get("flow_token"),
         phone,
         is_supervisor,
+        permission_for or "-",
         screen,
-        data.get("show_shift"),
-        data.get("show_cl_name"),
-        data.get("show_type"),
+        data,
     )
 
     return {

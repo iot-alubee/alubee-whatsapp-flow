@@ -2,69 +2,12 @@
   "version": "7.2",
   "data_api_version": "3.0",
   "routing_model": {
-    "PERMISSION_SELF": ["PERMISSION_SUPERVISOR"],
-    "PERMISSION_SUPERVISOR": []
+    "PERMISSION_FORM": ["PERMISSION_NO_ACCESS"],
+    "PERMISSION_NO_ACCESS": []
   },
   "screens": [
     {
-      "id": "PERMISSION_SELF",
-      "title": "Permission Request",
-      "terminal": true,
-      "data": {
-        "show_shift": {
-          "type": "boolean",
-          "__example__": false
-        }
-      },
-      "layout": {
-        "type": "SingleColumnLayout",
-        "children": [
-          {
-            "type": "RadioButtonsGroup",
-            "name": "permission_shift",
-            "label": "Shift",
-            "required": "${data.show_shift}",
-            "visible": "${data.show_shift}",
-            "data-source": [
-              { "id": "shift_i", "title": "Shift I" },
-              { "id": "shift_ii", "title": "Shift II" }
-            ]
-          },
-          {
-            "type": "RadioButtonsGroup",
-            "name": "permission_type",
-            "label": "Permission type",
-            "required": true,
-            "data-source": [
-              { "id": "late_in", "title": "Late IN" },
-              { "id": "early_out", "title": "Early OUT" },
-              { "id": "other", "title": "Other" }
-            ]
-          },
-          {
-            "type": "TextInput",
-            "name": "reason",
-            "label": "Reason",
-            "input-type": "text",
-            "required": true
-          },
-          {
-            "type": "Footer",
-            "label": "Submit",
-            "on-click-action": {
-              "name": "complete",
-              "payload": {
-                "permission_shift": "${form.permission_shift}",
-                "permission_type": "${form.permission_type}",
-                "reason": "${form.reason}"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "id": "PERMISSION_SUPERVISOR",
+      "id": "PERMISSION_FORM",
       "title": "Permission Request",
       "terminal": true,
       "data": {
@@ -74,11 +17,15 @@
         },
         "show_shift": {
           "type": "boolean",
-          "__example__": true
+          "__example__": false
         },
         "show_type": {
           "type": "boolean",
-          "__example__": true
+          "__example__": false
+        },
+        "show_reason": {
+          "type": "boolean",
+          "__example__": false
         }
       },
       "layout": {
@@ -136,7 +83,8 @@
             "name": "reason",
             "label": "Reason",
             "input-type": "text",
-            "required": true
+            "required": "${data.show_reason}",
+            "visible": "${data.show_reason}"
           },
           {
             "type": "Footer",
@@ -151,6 +99,25 @@
                 "reason": "${form.reason}"
               }
             }
+          }
+        ]
+      }
+    },
+    {
+      "id": "PERMISSION_NO_ACCESS",
+      "title": "Permission Request",
+      "terminal": true,
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "TextHeading",
+            "text": "Access not allowed"
+          },
+          {
+            "type": "TextBody",
+            "text": "You do not have access to raise permission for CL. Please contact your supervisor or use For Myself."
           }
         ]
       }
