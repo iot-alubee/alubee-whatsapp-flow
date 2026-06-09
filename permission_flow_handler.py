@@ -14,7 +14,8 @@ from users import (
 
 logger = logging.getLogger(__name__)
 
-PERMISSION_SCREEN = "PERMISSION_FORM"
+SCREEN_SELF = "PERMISSION_SELF"
+SCREEN_SUPERVISOR = "PERMISSION_SUPERVISOR"
 
 _LOAD_ACTIONS = frozenset({"init", "navigate", "data_exchange"})
 
@@ -90,28 +91,34 @@ def _needs_shift(phone: str, permission_for: str) -> bool:
         return True
 
 
-def _screen_data(flow_data: dict, form_data: dict) -> dict:
+def _self_screen_data(phone: str) -> dict:
+    return {"show_shift": _needs_shift(phone, "myself")}
+
+
+def _supervisor_screen_data(flow_data: dict, form_data: dict) -> dict:
     expanded = _expand_form_data(form_data)
-    is_supervisor, phone = _resolve_is_supervisor(flow_data, expanded)
-    permission_for = _pick(expanded, "permission_for")
-    if not permission_for and not is_supervisor:
-        permission_for = "myself"
+    _, phone = _resolve_is_supervisor(flow_data, expanded)
+    permission_for = _pick(expanded, "permission_for") or "myself"
     is_cl = permission_for == "cl"
-    show_shift = _needs_shift(phone, permission_for)
     return {
-        "show_permission_for": is_supervisor,
         "show_cl_name": is_cl,
-        "show_shift": show_shift,
+        "show_shift": _needs_shift(phone, permission_for),
         "show_type": not is_cl,
     }
 
 
+def _entry_screen(flow_data: dict, form_data: dict) -> tuple[str, dict]:
+    is_supervisor, phone = _resolve_is_supervisor(flow_data, form_data)
+    if is_supervisor:
+        return SCREEN_SUPERVISOR, _supervisor_screen_data(flow_data, form_data)
+    return SCREEN_SELF, _self_screen_data(phone)
+
+
 def build_permission_flow_response(flow_data: dict) -> dict:
     action = (flow_data.get("action") or "").strip().lower()
-    screen = (flow_data.get("screen") or "").strip() or PERMISSION_SCREEN
-    if action in ("init", "navigate"):
-        screen = PERMISSION_SCREEN
+    screen = (flow_data.get("screen") or "").strip().upper()
     form_data = flow_data.get("data") if isinstance(flow_data.get("data"), dict) else {}
+    expanded = _expand_form_data(form_data)
 
     if action == "ping":
         return {"version": "3.0", "data": {"status": "active"}}
@@ -119,8 +126,19 @@ def build_permission_flow_response(flow_data: dict) -> dict:
     if action not in _LOAD_ACTIONS:
         logger.warning("permission flow unexpected action=%s", action)
 
+    is_supervisor, phone = _resolve_is_supervisor(flow_data, expanded)
+
     try:
-        data = _screen_data(flow_data, form_data)
+        if action in ("init", "navigate"):
+            screen, data = _entry_screen(flow_data, expanded)
+        elif screen == SCREEN_SUPERVISOR or (
+            screen not in (SCREEN_SELF, SCREEN_SUPERVISOR) and is_supervisor
+        ):
+            screen = SCREEN_SUPERVISOR
+            data = _supervisor_screen_data(flow_data, expanded)
+        else:
+            screen = SCREEN_SELF
+            data = _self_screen_data(phone)
     except Exception:
         logger.exception(
             "permission screen data failed action=%s token=%s data=%s",
@@ -128,22 +146,17 @@ def build_permission_flow_response(flow_data: dict) -> dict:
             flow_data.get("flow_token"),
             form_data,
         )
-        data = {
-            "show_permission_for": False,
-            "show_cl_name": False,
-            "show_shift": True,
-            "show_type": True,
-        }
+        screen = SCREEN_SELF
+        data = {"show_shift": True}
 
-    is_supervisor, phone = _resolve_is_supervisor(flow_data, _expand_form_data(form_data))
     logger.info(
         "permission flow response action=%s token=%s phone=%s supervisor=%s "
-        "show_for=%s show_shift=%s show_cl=%s show_type=%s",
+        "screen=%s show_shift=%s show_cl=%s show_type=%s",
         action,
         flow_data.get("flow_token"),
         phone,
         is_supervisor,
-        data.get("show_permission_for"),
+        screen,
         data.get("show_shift"),
         data.get("show_cl_name"),
         data.get("show_type"),
