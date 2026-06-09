@@ -31,9 +31,10 @@ def flow():
 
         flow_data, aes_key, iv = decrypt_request(body, private_key)
         logger.info(
-            "flow action=%s screen=%s data_keys=%s",
+            "flow action=%s screen=%s token=%s data_keys=%s",
             flow_data.get("action"),
             flow_data.get("screen"),
+            flow_data.get("flow_token"),
             list((flow_data.get("data") or {}).keys()),
         )
 

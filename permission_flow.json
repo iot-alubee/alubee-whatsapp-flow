@@ -40,6 +40,10 @@
         "show_type": {
           "type": "boolean",
           "__example__": true
+        },
+        "default_permission_for": {
+          "type": "string",
+          "__example__": "myself"
         }
       },
       "layout": {
@@ -51,6 +55,7 @@
             "label": "Permission for",
             "required": "${data.show_permission_for}",
             "visible": "${data.show_permission_for}",
+            "init-value": "${data.default_permission_for}",
             "data-source": "${data.permission_for_options}",
             "on-select-action": {
               "name": "data_exchange",
