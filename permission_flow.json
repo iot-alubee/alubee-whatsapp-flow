@@ -1,126 +1,833 @@
-{
-  "version": "7.2",
-  "data_api_version": "3.0",
-  "routing_model": {
-    "PERMISSION_FORM": ["PERMISSION_NO_ACCESS"],
-    "PERMISSION_NO_ACCESS": []
-  },
-  "screens": [
-    {
-      "id": "PERMISSION_FORM",
-      "title": "Permission Request",
-      "terminal": true,
-      "data": {
-        "show_cl_name": {
-          "type": "boolean",
-          "__example__": false
-        },
-        "show_shift": {
-          "type": "boolean",
-          "__example__": false
-        },
-        "show_type": {
-          "type": "boolean",
-          "__example__": false
-        },
-        "show_reason": {
-          "type": "boolean",
-          "__example__": false
-        }
-      },
-      "layout": {
-        "type": "SingleColumnLayout",
-        "children": [
-          {
-            "type": "RadioButtonsGroup",
-            "name": "permission_for",
-            "label": "Permission for",
-            "required": true,
-            "data-source": [
-              { "id": "myself", "title": "For Myself" },
-              { "id": "cl", "title": "For CL" }
-            ],
-            "on-select-action": {
-              "name": "data_exchange",
-              "payload": {
-                "permission_for": "${form.permission_for}"
-              }
-            }
-          },
-          {
-            "type": "TextInput",
-            "name": "cl_employee_name",
-            "label": "Employee name",
-            "input-type": "text",
-            "required": "${data.show_cl_name}",
-            "visible": "${data.show_cl_name}"
-          },
-          {
-            "type": "RadioButtonsGroup",
-            "name": "permission_shift",
-            "label": "Shift",
-            "required": "${data.show_shift}",
-            "visible": "${data.show_shift}",
-            "data-source": [
-              { "id": "shift_i", "title": "Shift I" },
-              { "id": "shift_ii", "title": "Shift II" }
-            ]
-          },
-          {
-            "type": "RadioButtonsGroup",
-            "name": "permission_type",
-            "label": "Permission type",
-            "required": "${data.show_type}",
-            "visible": "${data.show_type}",
-            "data-source": [
-              { "id": "late_in", "title": "Late IN" },
-              { "id": "early_out", "title": "Early OUT" },
-              { "id": "other", "title": "Other" }
-            ]
-          },
-          {
-            "type": "TextInput",
-            "name": "reason",
-            "label": "Reason",
-            "input-type": "text",
-            "required": "${data.show_reason}",
-            "visible": "${data.show_reason}"
-          },
-          {
-            "type": "Footer",
-            "label": "Submit",
-            "on-click-action": {
-              "name": "complete",
-              "payload": {
-                "permission_for": "${form.permission_for}",
-                "cl_employee_name": "${form.cl_employee_name}",
-                "permission_shift": "${form.permission_shift}",
-                "permission_type": "${form.permission_type}",
-                "reason": "${form.reason}"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "id": "PERMISSION_NO_ACCESS",
-      "title": "Permission Request",
-      "terminal": true,
-      "data": {},
-      "layout": {
-        "type": "SingleColumnLayout",
-        "children": [
-          {
-            "type": "TextHeading",
-            "text": "Access not allowed"
-          },
-          {
-            "type": "TextBody",
-            "text": "You do not have access to raise permission for CL. Please contact your supervisor or use For Myself."
-          }
-        ]
-      }
-    }
-  ]
+﻿{
+    "screens":  [
+                    {
+                        "terminal":  true,
+                        "title":  "Permission Request",
+                        "layout":  {
+                                       "type":  "SingleColumnLayout",
+                                       "children":  [
+                                                        {
+                                                            "name":  "permission_for",
+                                                            "data-source":  [
+                                                                                {
+                                                                                    "id":  "myself",
+                                                                                    "title":  "For Myself"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "cl",
+                                                                                    "title":  "For CL"
+                                                                                }
+                                                                            ],
+                                                            "required":  true,
+                                                            "type":  "RadioButtonsGroup",
+                                                            "label":  "Permission for",
+                                                            "on-select-action":  {
+                                                                                     "name":  "data_exchange",
+                                                                                     "payload":  {
+                                                                                                     "permission_shift":  "${form.permission_shift}",
+                                                                                                     "permission_type":  "${form.permission_type}",
+                                                                                                     "permission_for":  "${form.permission_for}"
+                                                                                                 }
+                                                                                 }
+                                                        },
+                                                        {
+                                                            "name":  "cl_employee_name",
+                                                            "visible":  "${data.show_cl_name}",
+                                                            "input-type":  "text",
+                                                            "required":  "${data.show_cl_name}",
+                                                            "type":  "TextInput",
+                                                            "label":  "Employee name"
+                                                        },
+                                                        {
+                                                            "name":  "permission_shift",
+                                                            "visible":  "${data.show_shift}",
+                                                            "data-source":  [
+                                                                                {
+                                                                                    "id":  "shift_i",
+                                                                                    "title":  "Shift I"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "shift_ii",
+                                                                                    "title":  "Shift II"
+                                                                                }
+                                                                            ],
+                                                            "required":  "${data.show_shift}",
+                                                            "type":  "RadioButtonsGroup",
+                                                            "label":  "Shift"
+                                                        },
+                                                        {
+                                                            "name":  "permission_type",
+                                                            "visible":  "${data.show_type}",
+                                                            "data-source":  [
+                                                                                {
+                                                                                    "id":  "late_in",
+                                                                                    "title":  "Late IN"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "early_out",
+                                                                                    "title":  "Early OUT"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "other",
+                                                                                    "title":  "Other"
+                                                                                }
+                                                                            ],
+                                                            "required":  "${data.show_type}",
+                                                            "type":  "RadioButtonsGroup",
+                                                            "label":  "Permission type",
+                                                            "on-select-action":  {
+                                                                                     "name":  "data_exchange",
+                                                                                     "payload":  {
+                                                                                                     "permission_shift":  "${form.permission_shift}",
+                                                                                                     "permission_type":  "${form.permission_type}",
+                                                                                                     "permission_for":  "${form.permission_for}"
+                                                                                                 }
+                                                                                 }
+                                                        },
+                                                        {
+                                                            "visible":  "${data.show_expected_in}",
+                                                            "type":  "TextSubheading",
+                                                            "text":  "Expected IN time"
+                                                        },
+                                                        {
+                                                            "name":  "expected_in_hour",
+                                                            "visible":  "${data.show_expected_in}",
+                                                            "data-source":  [
+                                                                                {
+                                                                                    "id":  "1",
+                                                                                    "title":  "1"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "2",
+                                                                                    "title":  "2"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "3",
+                                                                                    "title":  "3"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "4",
+                                                                                    "title":  "4"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "5",
+                                                                                    "title":  "5"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "6",
+                                                                                    "title":  "6"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "7",
+                                                                                    "title":  "7"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "8",
+                                                                                    "title":  "8"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "9",
+                                                                                    "title":  "9"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "10",
+                                                                                    "title":  "10"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "11",
+                                                                                    "title":  "11"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "12",
+                                                                                    "title":  "12"
+                                                                                }
+                                                                            ],
+                                                            "required":  "${data.show_expected_in}",
+                                                            "type":  "Dropdown",
+                                                            "label":  "Hour"
+                                                        },
+                                                        {
+                                                            "name":  "expected_in_minute",
+                                                            "visible":  "${data.show_expected_in}",
+                                                            "data-source":  [
+                                                                                {
+                                                                                    "id":  "00",
+                                                                                    "title":  "00"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "01",
+                                                                                    "title":  "01"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "02",
+                                                                                    "title":  "02"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "03",
+                                                                                    "title":  "03"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "04",
+                                                                                    "title":  "04"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "05",
+                                                                                    "title":  "05"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "06",
+                                                                                    "title":  "06"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "07",
+                                                                                    "title":  "07"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "08",
+                                                                                    "title":  "08"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "09",
+                                                                                    "title":  "09"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "10",
+                                                                                    "title":  "10"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "11",
+                                                                                    "title":  "11"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "12",
+                                                                                    "title":  "12"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "13",
+                                                                                    "title":  "13"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "14",
+                                                                                    "title":  "14"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "15",
+                                                                                    "title":  "15"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "16",
+                                                                                    "title":  "16"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "17",
+                                                                                    "title":  "17"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "18",
+                                                                                    "title":  "18"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "19",
+                                                                                    "title":  "19"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "20",
+                                                                                    "title":  "20"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "21",
+                                                                                    "title":  "21"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "22",
+                                                                                    "title":  "22"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "23",
+                                                                                    "title":  "23"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "24",
+                                                                                    "title":  "24"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "25",
+                                                                                    "title":  "25"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "26",
+                                                                                    "title":  "26"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "27",
+                                                                                    "title":  "27"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "28",
+                                                                                    "title":  "28"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "29",
+                                                                                    "title":  "29"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "30",
+                                                                                    "title":  "30"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "31",
+                                                                                    "title":  "31"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "32",
+                                                                                    "title":  "32"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "33",
+                                                                                    "title":  "33"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "34",
+                                                                                    "title":  "34"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "35",
+                                                                                    "title":  "35"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "36",
+                                                                                    "title":  "36"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "37",
+                                                                                    "title":  "37"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "38",
+                                                                                    "title":  "38"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "39",
+                                                                                    "title":  "39"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "40",
+                                                                                    "title":  "40"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "41",
+                                                                                    "title":  "41"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "42",
+                                                                                    "title":  "42"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "43",
+                                                                                    "title":  "43"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "44",
+                                                                                    "title":  "44"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "45",
+                                                                                    "title":  "45"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "46",
+                                                                                    "title":  "46"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "47",
+                                                                                    "title":  "47"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "48",
+                                                                                    "title":  "48"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "49",
+                                                                                    "title":  "49"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "50",
+                                                                                    "title":  "50"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "51",
+                                                                                    "title":  "51"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "52",
+                                                                                    "title":  "52"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "53",
+                                                                                    "title":  "53"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "54",
+                                                                                    "title":  "54"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "55",
+                                                                                    "title":  "55"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "56",
+                                                                                    "title":  "56"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "57",
+                                                                                    "title":  "57"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "58",
+                                                                                    "title":  "58"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "59",
+                                                                                    "title":  "59"
+                                                                                }
+                                                                            ],
+                                                            "required":  "${data.show_expected_in}",
+                                                            "type":  "Dropdown",
+                                                            "label":  "Min"
+                                                        },
+                                                        {
+                                                            "name":  "expected_in_ampm",
+                                                            "visible":  "${data.show_expected_in}",
+                                                            "data-source":  [
+                                                                                {
+                                                                                    "id":  "am",
+                                                                                    "title":  "AM"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "pm",
+                                                                                    "title":  "PM"
+                                                                                }
+                                                                            ],
+                                                            "required":  "${data.show_expected_in}",
+                                                            "type":  "Dropdown",
+                                                            "label":  "AM / PM"
+                                                        },
+                                                        {
+                                                            "visible":  "${data.show_expected_out}",
+                                                            "type":  "TextSubheading",
+                                                            "text":  "Expected OUT time"
+                                                        },
+                                                        {
+                                                            "name":  "expected_out_hour",
+                                                            "visible":  "${data.show_expected_out}",
+                                                            "data-source":  [
+                                                                                {
+                                                                                    "id":  "1",
+                                                                                    "title":  "1"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "2",
+                                                                                    "title":  "2"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "3",
+                                                                                    "title":  "3"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "4",
+                                                                                    "title":  "4"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "5",
+                                                                                    "title":  "5"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "6",
+                                                                                    "title":  "6"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "7",
+                                                                                    "title":  "7"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "8",
+                                                                                    "title":  "8"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "9",
+                                                                                    "title":  "9"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "10",
+                                                                                    "title":  "10"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "11",
+                                                                                    "title":  "11"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "12",
+                                                                                    "title":  "12"
+                                                                                }
+                                                                            ],
+                                                            "required":  "${data.show_expected_out}",
+                                                            "type":  "Dropdown",
+                                                            "label":  "Hour"
+                                                        },
+                                                        {
+                                                            "name":  "expected_out_minute",
+                                                            "visible":  "${data.show_expected_out}",
+                                                            "data-source":  [
+                                                                                {
+                                                                                    "id":  "00",
+                                                                                    "title":  "00"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "01",
+                                                                                    "title":  "01"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "02",
+                                                                                    "title":  "02"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "03",
+                                                                                    "title":  "03"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "04",
+                                                                                    "title":  "04"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "05",
+                                                                                    "title":  "05"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "06",
+                                                                                    "title":  "06"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "07",
+                                                                                    "title":  "07"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "08",
+                                                                                    "title":  "08"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "09",
+                                                                                    "title":  "09"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "10",
+                                                                                    "title":  "10"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "11",
+                                                                                    "title":  "11"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "12",
+                                                                                    "title":  "12"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "13",
+                                                                                    "title":  "13"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "14",
+                                                                                    "title":  "14"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "15",
+                                                                                    "title":  "15"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "16",
+                                                                                    "title":  "16"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "17",
+                                                                                    "title":  "17"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "18",
+                                                                                    "title":  "18"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "19",
+                                                                                    "title":  "19"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "20",
+                                                                                    "title":  "20"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "21",
+                                                                                    "title":  "21"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "22",
+                                                                                    "title":  "22"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "23",
+                                                                                    "title":  "23"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "24",
+                                                                                    "title":  "24"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "25",
+                                                                                    "title":  "25"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "26",
+                                                                                    "title":  "26"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "27",
+                                                                                    "title":  "27"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "28",
+                                                                                    "title":  "28"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "29",
+                                                                                    "title":  "29"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "30",
+                                                                                    "title":  "30"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "31",
+                                                                                    "title":  "31"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "32",
+                                                                                    "title":  "32"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "33",
+                                                                                    "title":  "33"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "34",
+                                                                                    "title":  "34"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "35",
+                                                                                    "title":  "35"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "36",
+                                                                                    "title":  "36"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "37",
+                                                                                    "title":  "37"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "38",
+                                                                                    "title":  "38"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "39",
+                                                                                    "title":  "39"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "40",
+                                                                                    "title":  "40"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "41",
+                                                                                    "title":  "41"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "42",
+                                                                                    "title":  "42"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "43",
+                                                                                    "title":  "43"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "44",
+                                                                                    "title":  "44"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "45",
+                                                                                    "title":  "45"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "46",
+                                                                                    "title":  "46"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "47",
+                                                                                    "title":  "47"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "48",
+                                                                                    "title":  "48"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "49",
+                                                                                    "title":  "49"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "50",
+                                                                                    "title":  "50"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "51",
+                                                                                    "title":  "51"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "52",
+                                                                                    "title":  "52"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "53",
+                                                                                    "title":  "53"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "54",
+                                                                                    "title":  "54"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "55",
+                                                                                    "title":  "55"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "56",
+                                                                                    "title":  "56"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "57",
+                                                                                    "title":  "57"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "58",
+                                                                                    "title":  "58"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "59",
+                                                                                    "title":  "59"
+                                                                                }
+                                                                            ],
+                                                            "required":  "${data.show_expected_out}",
+                                                            "type":  "Dropdown",
+                                                            "label":  "Min"
+                                                        },
+                                                        {
+                                                            "name":  "expected_out_ampm",
+                                                            "visible":  "${data.show_expected_out}",
+                                                            "data-source":  [
+                                                                                {
+                                                                                    "id":  "am",
+                                                                                    "title":  "AM"
+                                                                                },
+                                                                                {
+                                                                                    "id":  "pm",
+                                                                                    "title":  "PM"
+                                                                                }
+                                                                            ],
+                                                            "required":  "${data.show_expected_out}",
+                                                            "type":  "Dropdown",
+                                                            "label":  "AM / PM"
+                                                        },
+                                                        {
+                                                            "name":  "reason",
+                                                            "visible":  "${data.show_reason}",
+                                                            "input-type":  "text",
+                                                            "required":  "${data.show_reason}",
+                                                            "type":  "TextInput",
+                                                            "label":  "Reason"
+                                                        },
+                                                        {
+                                                            "label":  "Submit",
+                                                            "type":  "Footer",
+                                                            "on-click-action":  {
+                                                                                    "name":  "complete",
+                                                                                    "payload":  {
+                                                                                                    "expected_in_ampm":  "${form.expected_in_ampm}",
+                                                                                                    "reason":  "${form.reason}",
+                                                                                                    "permission_shift":  "${form.permission_shift}",
+                                                                                                    "permission_for":  "${form.permission_for}",
+                                                                                                    "expected_out_minute":  "${form.expected_out_minute}",
+                                                                                                    "expected_in_hour":  "${form.expected_in_hour}",
+                                                                                                    "cl_employee_name":  "${form.cl_employee_name}",
+                                                                                                    "expected_in_minute":  "${form.expected_in_minute}",
+                                                                                                    "expected_out_ampm":  "${form.expected_out_ampm}",
+                                                                                                    "expected_out_hour":  "${form.expected_out_hour}",
+                                                                                                    "permission_type":  "${form.permission_type}"
+                                                                                                }
+                                                                                }
+                                                        }
+                                                    ]
+                                   },
+                        "data":  {
+                                     "show_type":  {
+                                                       "type":  "boolean",
+                                                       "__example__":  false
+                                                   },
+                                     "show_reason":  {
+                                                         "type":  "boolean",
+                                                         "__example__":  false
+                                                     },
+                                     "show_expected_in":  {
+                                                              "type":  "boolean",
+                                                              "__example__":  false
+                                                          },
+                                     "show_expected_out":  {
+                                                               "type":  "boolean",
+                                                               "__example__":  false
+                                                           },
+                                     "show_cl_name":  {
+                                                          "type":  "boolean",
+                                                          "__example__":  false
+                                                      },
+                                     "show_shift":  {
+                                                        "type":  "boolean",
+                                                        "__example__":  false
+                                                    }
+                                 },
+                        "id":  "PERMISSION_FORM"
+                    },
+                    {
+                        "terminal":  true,
+                        "title":  "Permission Request",
+                        "layout":  {
+                                       "type":  "SingleColumnLayout",
+                                       "children":  [
+                                                        {
+                                                            "text":  "Access not allowed",
+                                                            "type":  "TextHeading"
+                                                        },
+                                                        {
+                                                            "text":  "You do not have access to raise permission for CL. Please contact your supervisor or use For Myself.",
+                                                            "type":  "TextBody"
+                                                        }
+                                                    ]
+                                   },
+                        "data":  {
+
+                                 },
+                        "id":  "PERMISSION_NO_ACCESS"
+                    }
+                ],
+    "data_api_version":  "3.0",
+    "version":  "7.2",
+    "routing_model":  {
+                          "PERMISSION_FORM":  [
+                                                  "PERMISSION_NO_ACCESS"
+                                              ],
+                          "PERMISSION_NO_ACCESS":  [
+
+                                                   ]
+                      }
 }

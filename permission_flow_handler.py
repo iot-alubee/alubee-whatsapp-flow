@@ -25,6 +25,8 @@ _HIDDEN = {
     "show_shift": False,
     "show_type": False,
     "show_reason": False,
+    "show_expected_in": False,
+    "show_expected_out": False,
 }
 
 
@@ -33,6 +35,17 @@ def _pick(data: dict, key: str) -> str:
     if val is None:
         return ""
     return str(val).strip().lower()
+
+
+def _normalize_permission_type(raw: str) -> str:
+    s = (raw or "").strip().lower().replace(" ", "_")
+    if s in ("late_in", "latein", "late"):
+        return "late_in"
+    if s in ("early_out", "earlyout", "early"):
+        return "early_out"
+    if s == "other":
+        return "other"
+    return ""
 
 
 def _is_supervisor_flag(data: dict) -> bool:
@@ -99,13 +112,16 @@ def _needs_shift(phone: str, permission_for: str) -> bool:
         return True
 
 
-def _myself_form_data(phone: str) -> dict:
+def _myself_form_data(phone: str, permission_type: str = "") -> dict:
     show_shift = _needs_shift(phone, "myself")
+    pt = _normalize_permission_type(permission_type)
     return {
         "show_cl_name": False,
         "show_shift": show_shift,
         "show_type": True,
-        "show_reason": True,
+        "show_reason": bool(pt),
+        "show_expected_in": pt in ("late_in", "other"),
+        "show_expected_out": pt in ("early_out", "other"),
     }
 
 
@@ -115,6 +131,8 @@ def _cl_form_data(phone: str) -> dict:
         "show_shift": True,
         "show_type": False,
         "show_reason": True,
+        "show_expected_in": False,
+        "show_expected_out": True,
     }
 
 
@@ -132,6 +150,7 @@ def build_permission_flow_response(flow_data: dict) -> dict:
 
     is_supervisor, phone = _resolve_is_supervisor(flow_data, expanded)
     permission_for = _pick(expanded, "permission_for")
+    permission_type = _pick(expanded, "permission_type")
 
     try:
         if action in ("init", "navigate"):
@@ -145,7 +164,7 @@ def build_permission_flow_response(flow_data: dict) -> dict:
             data = _cl_form_data(phone)
         elif permission_for == "myself":
             screen = SCREEN_FORM
-            data = _myself_form_data(phone)
+            data = _myself_form_data(phone, permission_type)
         elif screen == SCREEN_NO_ACCESS:
             data = {}
         else:
@@ -163,12 +182,13 @@ def build_permission_flow_response(flow_data: dict) -> dict:
 
     logger.info(
         "permission flow response action=%s token=%s phone=%s supervisor=%s "
-        "for=%s screen=%s data=%s",
+        "for=%s type=%s screen=%s data=%s",
         action,
         flow_data.get("flow_token"),
         phone,
         is_supervisor,
         permission_for or "-",
+        permission_type or "-",
         screen,
         data,
     )
