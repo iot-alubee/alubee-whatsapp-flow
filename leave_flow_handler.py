@@ -19,8 +19,10 @@ def _pick(data: dict, key: str) -> str:
 def _screen_data(form_data: dict) -> dict:
     leave_when = _pick(form_data, "leave_when")
     leave_reason = _pick(form_data, "leave_reason")
+    show_half = leave_when in ("today", "tomorrow")
     return {
         "show_date_range": leave_when == "other",
+        "show_half_day_option": show_half,
         "show_other_reason": leave_reason == "other",
     }
 
@@ -37,12 +39,17 @@ def build_leave_flow_response(flow_data: dict) -> dict:
         data = _screen_data(form_data)
     except Exception:
         logger.exception("leave screen data failed action=%s data=%s", action, form_data)
-        data = {"show_date_range": False, "show_other_reason": False}
+        data = {
+            "show_date_range": False,
+            "show_half_day_option": False,
+            "show_other_reason": False,
+        }
 
     logger.info(
-        "leave flow response action=%s show_date_range=%s show_other_reason=%s",
+        "leave flow response action=%s show_date_range=%s show_half_day=%s show_other_reason=%s",
         action,
         data.get("show_date_range"),
+        data.get("show_half_day_option"),
         data.get("show_other_reason"),
     )
 
