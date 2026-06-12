@@ -211,7 +211,8 @@ def _myself_form_data(
 
 def _cl_form_data(phone: str, *, permission_shift: str = "") -> dict:
     ud = get_user_by_phone(phone) if phone else None
-    shift = _effective_shift(phone, "cl", permission_shift, ud)
+    # CL permission is Unit I / Shift I only.
+    shift = "I"
     out_slots, _ = _time_slot_fields(
         ud,
         permission_shift=shift,
@@ -220,7 +221,7 @@ def _cl_form_data(phone: str, *, permission_shift: str = "") -> dict:
     )
     return {
         "show_cl_name": True,
-        "show_shift": True,
+        "show_shift": False,
         "show_type": False,
         "show_reason": True,
         "show_expected_in": False,
