@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 
+from permission_times import permission_time_slot_options
 from users import (
     is_rotational_shift_for_phone,
     is_supervisor_for_phone,
@@ -19,6 +20,8 @@ SCREEN_NO_ACCESS = "PERMISSION_NO_ACCESS"
 
 _LOAD_ACTIONS = frozenset({"init", "navigate", "data_exchange"})
 
+_TIME_SLOTS = permission_time_slot_options()
+
 # Before user picks For Myself / For CL — only the radio is shown.
 _HIDDEN = {
     "show_cl_name": False,
@@ -27,6 +30,7 @@ _HIDDEN = {
     "show_reason": False,
     "show_expected_in": False,
     "show_expected_out": False,
+    "time_slots": _TIME_SLOTS,
 }
 
 
@@ -122,6 +126,7 @@ def _myself_form_data(phone: str, permission_type: str = "") -> dict:
         "show_reason": bool(pt),
         "show_expected_in": pt in ("late_in", "other"),
         "show_expected_out": pt in ("early_out", "other"),
+        "time_slots": _TIME_SLOTS,
     }
 
 
@@ -133,6 +138,7 @@ def _cl_form_data(phone: str) -> dict:
         "show_reason": True,
         "show_expected_in": False,
         "show_expected_out": True,
+        "time_slots": _TIME_SLOTS,
     }
 
 
