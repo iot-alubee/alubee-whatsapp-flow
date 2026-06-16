@@ -36,6 +36,25 @@
               "name": "data_exchange",
               "payload": {
                 "leave_when": "${form.leave_when}",
+                "leave_duration": "${form.leave_duration}",
+                "leave_reason": "${form.leave_reason}"
+              }
+            }
+          },
+          {
+            "type": "RadioButtonsGroup",
+            "name": "leave_duration",
+            "label": "Duration",
+            "required": true,
+            "data-source": [
+              { "id": "full_day", "title": "Full day" },
+              { "id": "half_day", "title": "Half day" }
+            ],
+            "on-select-action": {
+              "name": "data_exchange",
+              "payload": {
+                "leave_when": "${form.leave_when}",
+                "leave_duration": "${form.leave_duration}",
                 "leave_reason": "${form.leave_reason}"
               }
             }
@@ -68,6 +87,7 @@
               "name": "data_exchange",
               "payload": {
                 "leave_when": "${form.leave_when}",
+                "leave_duration": "${form.leave_duration}",
                 "leave_reason": "${form.leave_reason}"
               }
             }
@@ -87,6 +107,7 @@
               "name": "complete",
               "payload": {
                 "leave_when": "${form.leave_when}",
+                "leave_duration": "${form.leave_duration}",
                 "from_date": "${form.from_date}",
                 "to_date": "${form.to_date}",
                 "leave_reason": "${form.leave_reason}",
