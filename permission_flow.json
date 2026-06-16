@@ -23,50 +23,9 @@
           "type": "boolean",
           "__example__": false
         },
-        "show_expected_in": {
-          "type": "boolean",
-          "__example__": false
-        },
-        "show_expected_out": {
-          "type": "boolean",
-          "__example__": false
-        },
         "show_reason": {
           "type": "boolean",
           "__example__": false
-        },
-        "permission_types": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "id": { "type": "string" },
-              "title": { "type": "string" }
-            }
-          },
-          "__example__": []
-        },
-        "out_time_slots": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "id": { "type": "string" },
-              "title": { "type": "string" }
-            }
-          },
-          "__example__": []
-        },
-        "in_time_slots": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "id": { "type": "string" },
-              "title": { "type": "string" }
-            }
-          },
-          "__example__": []
         }
       },
       "layout": {
@@ -84,10 +43,7 @@
             "on-select-action": {
               "name": "data_exchange",
               "payload": {
-                "permission_for": "${form.permission_for}",
-                "permission_type": "${form.permission_type}",
-                "permission_shift": "${form.permission_shift}",
-                "expected_out_time": "${form.expected_out_time}"
+                "permission_for": "${form.permission_for}"
               }
             }
           },
@@ -108,16 +64,7 @@
             "data-source": [
               { "id": "shift_i", "title": "Shift I" },
               { "id": "shift_ii", "title": "Shift II" }
-            ],
-            "on-select-action": {
-              "name": "data_exchange",
-              "payload": {
-                "permission_for": "${form.permission_for}",
-                "permission_type": "${form.permission_type}",
-                "permission_shift": "${form.permission_shift}",
-                "expected_out_time": "${form.expected_out_time}"
-              }
-            }
+            ]
           },
           {
             "type": "RadioButtonsGroup",
@@ -125,41 +72,11 @@
             "label": "Permission type",
             "required": "${data.show_type}",
             "visible": "${data.show_type}",
-            "data-source": "${data.permission_types}",
-            "on-select-action": {
-              "name": "data_exchange",
-              "payload": {
-                "permission_for": "${form.permission_for}",
-                "permission_type": "${form.permission_type}",
-                "permission_shift": "${form.permission_shift}",
-                "expected_out_time": "${form.expected_out_time}"
-              }
-            }
-          },
-          {
-            "type": "Dropdown",
-            "name": "expected_out_time",
-            "label": "Expected OUT time",
-            "required": "${data.show_expected_out}",
-            "visible": "${data.show_expected_out}",
-            "data-source": "${data.out_time_slots}",
-            "on-select-action": {
-              "name": "data_exchange",
-              "payload": {
-                "permission_for": "${form.permission_for}",
-                "permission_type": "${form.permission_type}",
-                "permission_shift": "${form.permission_shift}",
-                "expected_out_time": "${form.expected_out_time}"
-              }
-            }
-          },
-          {
-            "type": "Dropdown",
-            "name": "expected_in_time",
-            "label": "Expected IN time",
-            "required": "${data.show_expected_in}",
-            "visible": "${data.show_expected_in}",
-            "data-source": "${data.in_time_slots}"
+            "data-source": [
+              { "id": "late_in", "title": "Late IN" },
+              { "id": "early_out", "title": "Early OUT" },
+              { "id": "other", "title": "Other" }
+            ]
           },
           {
             "type": "TextInput",
@@ -179,8 +96,6 @@
                 "cl_employee_name": "${form.cl_employee_name}",
                 "permission_shift": "${form.permission_shift}",
                 "permission_type": "${form.permission_type}",
-                "expected_out_time": "${form.expected_out_time}",
-                "expected_in_time": "${form.expected_in_time}",
                 "reason": "${form.reason}"
               }
             }

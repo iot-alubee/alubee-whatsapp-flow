@@ -46,10 +46,11 @@ def wa_id_from_phone(phone: str) -> str:
 
 def phone_from_flow_token(token: str) -> str:
     t = (token or "").strip()
-    if t.startswith("perm_"):
-        d = _digits(t[5:])
-        if len(d) == 10:
-            return d
+    for prefix in ("perm_", "leave_", "visitor_", "od_"):
+        if t.lower().startswith(prefix):
+            d = _digits(t[len(prefix) :])
+            if len(d) == 10:
+                return d
     d = _digits(t)
     if len(d) == 10:
         return d
