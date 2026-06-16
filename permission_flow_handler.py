@@ -5,7 +5,12 @@ from __future__ import annotations
 import json
 import logging
 
+from permission_times import (
+    build_permission_time_slots,
+    permission_types_for_user,
+)
 from users import (
+    get_user_by_phone,
     is_rotational_shift_for_phone,
     is_supervisor_for_phone,
     phone_from_flow_token,
@@ -19,12 +24,18 @@ SCREEN_NO_ACCESS = "PERMISSION_NO_ACCESS"
 
 _LOAD_ACTIONS = frozenset({"init", "navigate", "data_exchange"})
 
-# Before user picks For Myself / For CL — only the radio is shown.
+_EMPTY_SLOTS: list[dict[str, str]] = []
+
 _HIDDEN = {
     "show_cl_name": False,
     "show_shift": False,
     "show_type": False,
+    "show_expected_out": False,
+    "show_expected_in": False,
     "show_reason": False,
+    "permission_types": _EMPTY_SLOTS,
+    "out_time_slots": _EMPTY_SLOTS,
+    "in_time_slots": _EMPTY_SLOTS,
 }
 
 
@@ -35,13 +46,13 @@ def _pick(data: dict, key: str) -> str:
     return str(val).strip().lower()
 
 
-def _is_supervisor_flag(data: dict) -> bool:
-    val = data.get("is_supervisor")
-    if val is True:
-        return True
-    if val is False:
-        return False
-    return str(val).strip().lower() in ("1", "true", "yes", "on")
+def _normalize_shift(raw: str) -> str:
+    r = (raw or "").strip().lower().replace(" ", "_")
+    if r in ("shift_ii", "shift2", "ii", "2"):
+        return "II"
+    if r in ("shift_i", "shift1", "i", "1"):
+        return "I"
+    return ""
 
 
 def _expand_form_data(form_data: dict) -> dict:
@@ -77,16 +88,6 @@ def _phone_from_context(flow_data: dict, form_data: dict) -> str:
     return ""
 
 
-def _resolve_is_supervisor(flow_data: dict, form_data: dict) -> tuple[bool, str]:
-    phone = _phone_from_context(flow_data, form_data)
-    if phone:
-        try:
-            return is_supervisor_for_phone(phone), phone
-        except Exception:
-            logger.exception("permission supervisor lookup failed phone=%s", phone)
-    return _is_supervisor_flag(form_data), phone
-
-
 def _needs_shift(phone: str, permission_for: str) -> bool:
     if permission_for == "cl":
         return True
@@ -99,23 +100,61 @@ def _needs_shift(phone: str, permission_for: str) -> bool:
         return True
 
 
-def _myself_form_data(phone: str) -> dict:
-    show_shift = _needs_shift(phone, "myself")
-    return {
-        "show_cl_name": False,
-        "show_shift": show_shift,
-        "show_type": True,
-        "show_reason": True,
-    }
-
-
-def _cl_form_data(phone: str) -> dict:
+def _cl_form_data() -> dict:
     return {
         "show_cl_name": True,
         "show_shift": True,
         "show_type": False,
+        "show_expected_out": False,
+        "show_expected_in": False,
         "show_reason": True,
+        "permission_types": _EMPTY_SLOTS,
+        "out_time_slots": _EMPTY_SLOTS,
+        "in_time_slots": _EMPTY_SLOTS,
     }
+
+
+def _myself_form_data(phone: str, expanded: dict) -> dict:
+    ud = get_user_by_phone(phone) if phone else None
+    show_shift = _needs_shift(phone, "myself")
+    shift = _normalize_shift(_pick(expanded, "permission_shift"))
+    permission_type = _pick(expanded, "permission_type")
+    expected_out = str(expanded.get("expected_out") or "").strip()
+
+    data = {
+        "show_cl_name": False,
+        "show_shift": show_shift,
+        "show_type": False,
+        "show_expected_out": False,
+        "show_expected_in": False,
+        "show_reason": False,
+        "permission_types": _EMPTY_SLOTS,
+        "out_time_slots": _EMPTY_SLOTS,
+        "in_time_slots": _EMPTY_SLOTS,
+    }
+
+    if show_shift and not shift:
+        return data
+
+    shift_key = shift or "I"
+    data["permission_types"] = permission_types_for_user(ud, shift_key)
+    data["show_type"] = bool(data["permission_types"])
+
+    if not permission_type:
+        return data
+
+    out_slots, in_slots = build_permission_time_slots(
+        ud,
+        permission_shift=shift_key,
+        permission_type=permission_type,
+        expected_out=expected_out,
+    )
+    data["out_time_slots"] = out_slots
+    data["in_time_slots"] = in_slots
+    data["show_expected_out"] = bool(out_slots)
+    data["show_expected_in"] = bool(in_slots)
+    data["show_reason"] = True
+    return data
 
 
 def build_permission_flow_response(flow_data: dict) -> dict:
@@ -130,7 +169,13 @@ def build_permission_flow_response(flow_data: dict) -> dict:
     if action not in _LOAD_ACTIONS:
         logger.warning("permission flow unexpected action=%s", action)
 
-    is_supervisor, phone = _resolve_is_supervisor(flow_data, expanded)
+    phone = _phone_from_context(flow_data, expanded)
+    try:
+        is_supervisor = is_supervisor_for_phone(phone) if phone else False
+    except Exception:
+        logger.exception("permission supervisor lookup failed phone=%s", phone)
+        is_supervisor = False
+
     permission_for = _pick(expanded, "permission_for")
 
     try:
@@ -142,10 +187,10 @@ def build_permission_flow_response(flow_data: dict) -> dict:
             data = {}
         elif permission_for == "cl":
             screen = SCREEN_FORM
-            data = _cl_form_data(phone)
+            data = _cl_form_data()
         elif permission_for == "myself":
             screen = SCREEN_FORM
-            data = _myself_form_data(phone)
+            data = _myself_form_data(phone, expanded)
         elif screen == SCREEN_NO_ACCESS:
             data = {}
         else:
@@ -163,14 +208,17 @@ def build_permission_flow_response(flow_data: dict) -> dict:
 
     logger.info(
         "permission flow response action=%s token=%s phone=%s supervisor=%s "
-        "for=%s screen=%s data=%s",
+        "for=%s shift=%s type=%s screen=%s show_type=%s types=%s",
         action,
         flow_data.get("flow_token"),
         phone,
         is_supervisor,
         permission_for or "-",
+        _normalize_shift(_pick(expanded, "permission_shift")) or "-",
+        _pick(expanded, "permission_type") or "-",
         screen,
-        data,
+        data.get("show_type"),
+        len(data.get("permission_types") or []),
     )
 
     return {
