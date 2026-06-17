@@ -37,6 +37,30 @@
         "leaves_last_month_line": {
           "type": "string",
           "__example__": "Leaves in Last Month: 0"
+        },
+        "show_date_hint": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "show_date_error": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "date_range_hint_line": {
+          "type": "string",
+          "__example__": ""
+        },
+        "date_error_line": {
+          "type": "string",
+          "__example__": ""
+        },
+        "from_min_date": {
+          "type": "string",
+          "__example__": "2026-06-18"
+        },
+        "to_min_date": {
+          "type": "string",
+          "__example__": "2026-06-18"
         }
       },
       "layout": {
@@ -65,14 +89,46 @@
             "name": "from_date",
             "label": "From date",
             "required": "${data.show_date_range}",
-            "visible": "${data.show_date_range}"
+            "visible": "${data.show_date_range}",
+            "min-date": "${data.from_min_date}",
+            "on-select-action": {
+              "name": "data_exchange",
+              "payload": {
+                "leave_when": "${form.leave_when}",
+                "leave_duration": "${form.leave_duration}",
+                "leave_reason": "${form.leave_reason}",
+                "from_date": "${form.from_date}",
+                "to_date": "${form.to_date}"
+              }
+            }
           },
           {
             "type": "DatePicker",
             "name": "to_date",
             "label": "To date",
             "required": "${data.show_date_range}",
-            "visible": "${data.show_date_range}"
+            "visible": "${data.show_date_range}",
+            "min-date": "${data.to_min_date}",
+            "on-select-action": {
+              "name": "data_exchange",
+              "payload": {
+                "leave_when": "${form.leave_when}",
+                "leave_duration": "${form.leave_duration}",
+                "leave_reason": "${form.leave_reason}",
+                "from_date": "${form.from_date}",
+                "to_date": "${form.to_date}"
+              }
+            }
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.date_range_hint_line}",
+            "visible": "${data.show_date_hint}"
+          },
+          {
+            "type": "TextBody",
+            "text": "${data.date_error_line}",
+            "visible": "${data.show_date_error}"
           },
           {
             "type": "RadioButtonsGroup",
@@ -123,8 +179,9 @@
             "type": "Footer",
             "label": "Submit",
             "on-click-action": {
-              "name": "complete",
+              "name": "data_exchange",
               "payload": {
+                "submit": "1",
                 "leave_when": "${form.leave_when}",
                 "leave_duration": "${form.leave_duration}",
                 "from_date": "${form.from_date}",
