@@ -38,17 +38,9 @@
           "type": "string",
           "__example__": "Leaves in Last Month: 0"
         },
-        "show_date_hint": {
-          "type": "boolean",
-          "__example__": false
-        },
         "show_date_error": {
           "type": "boolean",
           "__example__": false
-        },
-        "date_range_hint_line": {
-          "type": "string",
-          "__example__": ""
         },
         "date_error_line": {
           "type": "string",
@@ -119,11 +111,6 @@
                 "to_date": "${form.to_date}"
               }
             }
-          },
-          {
-            "type": "TextBody",
-            "text": "${data.date_range_hint_line}",
-            "visible": "${data.show_date_hint}"
           },
           {
             "type": "TextBody",

@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 LEAVE_SCREEN = "LEAVE_FORM"
 _LOAD_ACTIONS = frozenset({"init", "navigate", "data_exchange"})
 
-DATE_RANGE_HINT = "Leave cannot be raised for today's date. To date must be on or after From date."
 DATE_TODAY_ERROR = "Leave cannot be raised for today's date. Please choose tomorrow or a later date."
 DATE_TO_BEFORE_FROM_ERROR = "To date must be on or after From date."
 
@@ -179,9 +178,7 @@ def _screen_data(form_data: dict, phone: str) -> dict:
         "show_date_range": show_date_range,
         "show_duration": show_duration,
         "show_leave_counts": True,
-        "show_date_hint": show_date_range,
         "show_date_error": bool(date_error),
-        "date_range_hint_line": DATE_RANGE_HINT if show_date_range else "",
         "date_error_line": date_error,
         "from_min_date": from_min_date,
         "to_min_date": to_min_date,
@@ -221,9 +218,7 @@ def build_leave_flow_response(flow_data: dict) -> dict:
             "show_date_range": False,
             "show_duration": False,
             "show_leave_counts": True,
-            "show_date_hint": False,
             "show_date_error": False,
-            "date_range_hint_line": "",
             "date_error_line": "",
             "from_min_date": _min_date_iso(_tomorrow_ist()),
             "to_min_date": _min_date_iso(_tomorrow_ist()),
