@@ -24,11 +24,19 @@
         },
         "leaves_current_month": {
           "type": "string",
-          "__example__": "0"
+          "__example__": "Leaves in Current Month: 0"
         },
         "leaves_last_month": {
           "type": "string",
-          "__example__": "0"
+          "__example__": "Leaves in Last Month: 0"
+        },
+        "leaves_current_month_line": {
+          "type": "string",
+          "__example__": "Leaves in Current Month: 0"
+        },
+        "leaves_last_month_line": {
+          "type": "string",
+          "__example__": "Leaves in Last Month: 0"
         }
       },
       "layout": {
@@ -105,13 +113,11 @@
           },
           {
             "type": "TextBody",
-            "text": "Leaves in Current Month: ${data.leaves_current_month}",
-            "visible": "${data.show_leave_counts}"
+            "text": "${data.leaves_current_month_line}"
           },
           {
             "type": "TextBody",
-            "text": "Leaves in Last Month: ${data.leaves_last_month}",
-            "visible": "${data.show_leave_counts}"
+            "text": "${data.leaves_last_month_line}"
           },
           {
             "type": "Footer",

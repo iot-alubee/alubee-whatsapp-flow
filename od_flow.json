@@ -22,6 +22,17 @@
           "type": "boolean",
           "__example__": false
         },
+        "visiting_to_options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" }
+            }
+          },
+          "__example__": []
+        },
         "is_vehicle_visible": {
           "type": "boolean",
           "__example__": false
@@ -42,18 +53,11 @@
         "type": "SingleColumnLayout",
         "children": [
           {
-            "type": "RadioButtonsGroup",
+            "type": "Dropdown",
             "name": "visiting_to",
             "label": "Visiting To",
             "required": true,
-            "data-source": [
-              { "id": "unit_i", "title": "Unit I" },
-              { "id": "unit_ii", "title": "Unit II" },
-              { "id": "hosur_town", "title": "Hosur Town" },
-              { "id": "supplier_place", "title": "Supplier Place" },
-              { "id": "bangalore", "title": "Bangalore" },
-              { "id": "md_home", "title": "MD Home" }
-            ],
+            "data-source": "${data.visiting_to_options}",
             "on-select-action": {
               "name": "data_exchange",
               "payload": {

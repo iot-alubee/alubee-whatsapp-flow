@@ -10,6 +10,7 @@ from users import get_user_by_phone, phone_from_flow_token, phone_to_10
 logger = logging.getLogger(__name__)
 
 LEAVE_SCREEN = "LEAVE_FORM"
+_LOAD_ACTIONS = frozenset({"init", "navigate", "data_exchange"})
 
 
 def _pick(data: dict, key: str) -> str:
@@ -20,6 +21,10 @@ def _pick(data: dict, key: str) -> str:
 
 
 def _phone_from_context(flow_data: dict, form_data: dict) -> str:
+    for token_raw in (flow_data.get("flow_token"), form_data.get("flow_token")):
+        phone = phone_from_flow_token(str(token_raw or ""))
+        if phone:
+            return phone
     for source in (flow_data, form_data):
         if not isinstance(source, dict):
             continue
@@ -39,28 +44,32 @@ def _format_leave_count(value: float) -> str:
     return str(value)
 
 
+def _leave_count_lines(phone: str) -> tuple[str, str, str, str]:
+    leaves_last = "0"
+    leaves_curr = "0"
+    if phone and get_user_by_phone(phone):
+        last, curr = get_leave_counts_for_phone(phone)
+        leaves_last = _format_leave_count(last)
+        leaves_curr = _format_leave_count(curr)
+    current_line = f"Leaves in Current Month: {leaves_curr}"
+    last_line = f"Leaves in Last Month: {leaves_last}"
+    return leaves_curr, leaves_last, current_line, last_line
+
+
 def _screen_data(form_data: dict, phone: str) -> dict:
     leave_when = _pick(form_data, "leave_when")
     show_date_range = leave_when == "other"
     show_duration = leave_when == "tomorrow"
-
-    leaves_last = "0"
-    leaves_curr = "0"
-    show_leave_counts = False
-    if phone:
-        ud = get_user_by_phone(phone)
-        if ud:
-            last, curr = get_leave_counts_for_phone(phone)
-            leaves_last = _format_leave_count(last)
-            leaves_curr = _format_leave_count(curr)
-            show_leave_counts = True
+    _, _, current_line, last_line = _leave_count_lines(phone)
 
     return {
         "show_date_range": show_date_range,
         "show_duration": show_duration,
-        "show_leave_counts": show_leave_counts,
-        "leaves_current_month": leaves_curr,
-        "leaves_last_month": leaves_last,
+        "show_leave_counts": True,
+        "leaves_current_month": current_line,
+        "leaves_last_month": last_line,
+        "leaves_current_month_line": current_line,
+        "leaves_last_month_line": last_line,
     }
 
 
@@ -72,6 +81,9 @@ def build_leave_flow_response(flow_data: dict) -> dict:
     if action == "ping":
         return {"version": "3.0", "data": {"status": "active"}}
 
+    if action not in _LOAD_ACTIONS:
+        logger.warning("leave flow unexpected action=%s", action)
+
     phone = _phone_from_context(flow_data, form_data)
 
     try:
@@ -81,19 +93,21 @@ def build_leave_flow_response(flow_data: dict) -> dict:
         data = {
             "show_date_range": False,
             "show_duration": False,
-            "show_leave_counts": False,
-            "leaves_current_month": "0",
-            "leaves_last_month": "0",
+            "show_leave_counts": True,
+            "leaves_current_month": "Leaves in Current Month: 0",
+            "leaves_last_month": "Leaves in Last Month: 0",
+            "leaves_current_month_line": "Leaves in Current Month: 0",
+            "leaves_last_month_line": "Leaves in Last Month: 0",
         }
 
     logger.info(
-        "leave flow response action=%s when=%s show_date_range=%s show_duration=%s counts=%s/%s",
+        "leave flow response action=%s token=%s phone=%s when=%s counts=%s | %s",
         action,
+        flow_data.get("flow_token"),
+        phone or "-",
         _pick(form_data, "leave_when") or "-",
-        data.get("show_date_range"),
-        data.get("show_duration"),
-        data.get("leaves_last_month"),
-        data.get("leaves_current_month"),
+        data.get("leaves_current_month_line"),
+        data.get("leaves_last_month_line"),
     )
 
     return {

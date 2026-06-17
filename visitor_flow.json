@@ -9,25 +9,28 @@
       "id": "VISITOR_FORM",
       "title": "Visitor Request",
       "terminal": true,
-      "data": {},
+      "data": {
+        "visitor_type_options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" }
+            }
+          },
+          "__example__": []
+        }
+      },
       "layout": {
         "type": "SingleColumnLayout",
         "children": [
           {
-            "type": "RadioButtonsGroup",
+            "type": "Dropdown",
             "name": "visitor_type",
             "label": "Visitor Type",
             "required": true,
-            "data-source": [
-              { "id": "supplier", "title": "Supplier" },
-              { "id": "customer", "title": "Customer" },
-              { "id": "interview", "title": "Interview" },
-              { "id": "govt_officials", "title": "Govt Officials" },
-              { "id": "consultant", "title": "Consultant" },
-              { "id": "contractor", "title": "Contractor" },
-              { "id": "service_provider", "title": "Service Provider" },
-              { "id": "guest", "title": "Guest" }
-            ]
+            "data-source": "${data.visitor_type_options}"
           },
           {
             "type": "TextInput",

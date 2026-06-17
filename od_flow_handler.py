@@ -10,6 +10,15 @@ logger = logging.getLogger(__name__)
 
 OD_SCREEN = "OD_FORM"
 
+VISITING_TO_OPTIONS: list[dict[str, str]] = [
+    {"id": "unit_i", "title": "Unit I"},
+    {"id": "unit_ii", "title": "Unit II"},
+    {"id": "hosur_town", "title": "Hosur Town"},
+    {"id": "supplier_place", "title": "Supplier Place"},
+    {"id": "bangalore", "title": "Bangalore"},
+    {"id": "md_home", "title": "MD Home"},
+]
+
 
 def _pick(data: dict, key: str) -> str:
     val = data.get(key)
@@ -34,6 +43,7 @@ def _screen_data(form_data: dict) -> dict:
             logger.exception("fetch_available_vehicles failed")
 
     return {
+        "visiting_to_options": VISITING_TO_OPTIONS,
         "show_purpose": show_purpose,
         "show_time_required": show_time_required,
         "show_company_vehicle": show_company_vehicle,
@@ -55,6 +65,7 @@ def build_od_flow_response(flow_data: dict) -> dict:
     except Exception:
         logger.exception("screen data build failed action=%s data=%s", action, form_data)
         data = {
+            "visiting_to_options": VISITING_TO_OPTIONS,
             "show_purpose": False,
             "show_time_required": False,
             "show_company_vehicle": False,

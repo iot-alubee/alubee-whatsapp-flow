@@ -8,6 +8,17 @@ logger = logging.getLogger(__name__)
 
 VISITOR_SCREEN = "VISITOR_FORM"
 
+VISITOR_TYPE_OPTIONS: list[dict[str, str]] = [
+    {"id": "supplier", "title": "Supplier"},
+    {"id": "customer", "title": "Customer"},
+    {"id": "interview", "title": "Interview"},
+    {"id": "govt_officials", "title": "Govt Officials"},
+    {"id": "consultant", "title": "Consultant"},
+    {"id": "contractor", "title": "Contractor"},
+    {"id": "service_provider", "title": "Service Provider"},
+    {"id": "guest", "title": "Guest"},
+]
+
 
 def build_visitor_flow_response(flow_data: dict) -> dict:
     action = (flow_data.get("action") or "").strip().lower()
@@ -21,5 +32,7 @@ def build_visitor_flow_response(flow_data: dict) -> dict:
     return {
         "version": "3.0",
         "screen": screen,
-        "data": {},
+        "data": {
+            "visitor_type_options": VISITOR_TYPE_OPTIONS,
+        },
     }
