@@ -53,6 +53,10 @@
         "to_min_date": {
           "type": "string",
           "__example__": "2026-06-18"
+        },
+        "can_submit": {
+          "type": "boolean",
+          "__example__": true
         }
       },
       "layout": {
@@ -165,10 +169,10 @@
           {
             "type": "Footer",
             "label": "Submit",
+            "enabled": "${data.can_submit}",
             "on-click-action": {
-              "name": "data_exchange",
+              "name": "complete",
               "payload": {
-                "submit": "1",
                 "leave_when": "${form.leave_when}",
                 "leave_duration": "${form.leave_duration}",
                 "from_date": "${form.from_date}",

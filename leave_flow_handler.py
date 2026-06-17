@@ -129,41 +129,10 @@ def _other_dates_invalid(form_data: dict) -> str:
     return ""
 
 
-def _is_submit_attempt(form_data: dict) -> bool:
-    return str(form_data.get("submit") or "").strip().lower() in ("1", "true", "yes")
-
-
-def _submit_validation_error(form_data: dict) -> str:
-    leave_when = _pick(form_data, "leave_when")
-    if leave_when not in ("tomorrow", "other"):
-        return "Please select Leave Date."
-    if not _pick(form_data, "leave_reason"):
-        return "Please select Leave type."
-    if leave_when == "tomorrow" and not _pick(form_data, "leave_duration"):
-        return "Please select Duration."
-    if leave_when == "other":
-        if not str(form_data.get("from_date") or "").strip():
-            return "Please select From date."
-        if not str(form_data.get("to_date") or "").strip():
-            return "Please select To date."
-        date_error = _other_dates_invalid(form_data)
-        if date_error:
-            return date_error
-    return ""
-
-
-def _submit_params(form_data: dict) -> dict:
-    return {
-        k: v
-        for k, v in {
-            "leave_when": str(form_data.get("leave_when") or "").strip(),
-            "leave_duration": str(form_data.get("leave_duration") or "").strip(),
-            "from_date": str(form_data.get("from_date") or "").strip(),
-            "to_date": str(form_data.get("to_date") or "").strip(),
-            "leave_reason": str(form_data.get("leave_reason") or "").strip(),
-        }.items()
-        if v
-    }
+def _can_submit(form_data: dict) -> bool:
+    if _pick(form_data, "leave_when") == "other" and _other_dates_invalid(form_data):
+        return False
+    return True
 
 
 def _screen_data(form_data: dict, phone: str) -> dict:
@@ -180,6 +149,7 @@ def _screen_data(form_data: dict, phone: str) -> dict:
         "show_leave_counts": True,
         "show_date_error": bool(date_error),
         "date_error_line": date_error,
+        "can_submit": _can_submit(form_data),
         "from_min_date": from_min_date,
         "to_min_date": to_min_date,
         "leaves_current_month": current_line,
@@ -220,35 +190,13 @@ def build_leave_flow_response(flow_data: dict) -> dict:
             "show_leave_counts": True,
             "show_date_error": False,
             "date_error_line": "",
+            "can_submit": True,
             "from_min_date": _min_date_iso(_tomorrow_ist()),
             "to_min_date": _min_date_iso(_tomorrow_ist()),
             "leaves_current_month": "Leaves in Current Month: 0",
             "leaves_last_month": "Leaves in Last Month: 0",
             "leaves_current_month_line": "Leaves in Current Month: 0",
             "leaves_last_month_line": "Leaves in Last Month: 0",
-        }
-
-    if _is_submit_attempt(form_data):
-        submit_error = _submit_validation_error(form_data)
-        if submit_error:
-            data = _apply_error(data, submit_error)
-            logger.info(
-                "leave submit blocked token=%s error=%s",
-                flow_data.get("flow_token"),
-                submit_error,
-            )
-            return {"version": "3.0", "screen": screen, "data": data}
-
-        params = _submit_params(form_data)
-        logger.info("leave submit accepted token=%s when=%s", flow_data.get("flow_token"), params.get("leave_when"))
-        return {
-            "version": "3.0",
-            "screen": screen,
-            "data": {
-                "extension_message_response": {
-                    "params": params,
-                }
-            },
         }
 
     if data.get("date_error_line"):
