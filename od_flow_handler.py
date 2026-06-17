@@ -19,11 +19,13 @@ def _pick(data: dict, key: str) -> str:
 
 
 def _screen_data(form_data: dict) -> dict:
-    od_reason = _pick(form_data, "od_reason")
-    show_other_reason = od_reason == "other"
+    visiting_to = _pick(form_data, "visiting_to")
+    show_purpose = bool(visiting_to) and visiting_to != "md_home"
+    show_time_required = bool(visiting_to)
+    show_company_vehicle = bool(visiting_to)
 
     company_vehicle = _pick(form_data, "company_vehicle")
-    is_vehicle_visible = company_vehicle == "yes"
+    is_vehicle_visible = show_company_vehicle and company_vehicle == "yes"
     vehicles: list[dict[str, str]] = []
     if is_vehicle_visible:
         try:
@@ -32,7 +34,9 @@ def _screen_data(form_data: dict) -> dict:
             logger.exception("fetch_available_vehicles failed")
 
     return {
-        "show_other_reason": show_other_reason,
+        "show_purpose": show_purpose,
+        "show_time_required": show_time_required,
+        "show_company_vehicle": show_company_vehicle,
         "is_vehicle_visible": is_vehicle_visible,
         "vehicles": vehicles,
     }
@@ -51,15 +55,18 @@ def build_od_flow_response(flow_data: dict) -> dict:
     except Exception:
         logger.exception("screen data build failed action=%s data=%s", action, form_data)
         data = {
-            "show_other_reason": False,
+            "show_purpose": False,
+            "show_time_required": False,
+            "show_company_vehicle": False,
             "is_vehicle_visible": False,
             "vehicles": [],
         }
 
     logger.info(
-        "flow response action=%s show_other=%s vehicle_visible=%s vehicle_count=%s",
+        "flow response action=%s purpose=%s time=%s vehicle_visible=%s vehicle_count=%s",
         action,
-        data.get("show_other_reason"),
+        data.get("show_purpose"),
+        data.get("show_time_required"),
         data.get("is_vehicle_visible"),
         len(data.get("vehicles") or []),
     )

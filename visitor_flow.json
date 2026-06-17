@@ -9,15 +9,47 @@
       "id": "VISITOR_FORM",
       "title": "Visitor Request",
       "terminal": true,
-      "data": {
-        "show_other_purpose": {
-          "type": "boolean",
-          "__example__": false
-        }
-      },
+      "data": {},
       "layout": {
         "type": "SingleColumnLayout",
         "children": [
+          {
+            "type": "RadioButtonsGroup",
+            "name": "visitor_type",
+            "label": "Visitor Type",
+            "required": true,
+            "data-source": [
+              { "id": "supplier", "title": "Supplier" },
+              { "id": "customer", "title": "Customer" },
+              { "id": "interview", "title": "Interview" },
+              { "id": "govt_officials", "title": "Govt Officials" },
+              { "id": "consultant", "title": "Consultant" },
+              { "id": "contractor", "title": "Contractor" },
+              { "id": "service_provider", "title": "Service Provider" },
+              { "id": "guest", "title": "Guest" }
+            ]
+          },
+          {
+            "type": "TextInput",
+            "name": "purpose",
+            "label": "Purpose",
+            "input-type": "text",
+            "required": true
+          },
+          {
+            "type": "TextInput",
+            "name": "visitor_name",
+            "label": "Visitor name",
+            "input-type": "text",
+            "required": true
+          },
+          {
+            "type": "TextInput",
+            "name": "no_of_people",
+            "label": "No. of people",
+            "input-type": "number",
+            "required": true
+          },
           {
             "type": "DatePicker",
             "name": "coming_on",
@@ -32,33 +64,16 @@
             "required": true
           },
           {
-            "type": "RadioButtonsGroup",
-            "name": "purpose",
-            "label": "Purpose of visit?",
-            "required": true,
-            "data-source": [
-              { "id": "customer_visit", "title": "Customer Visit" },
-              { "id": "other", "title": "Other" }
-            ],
-            "on-select-action": {
-              "name": "data_exchange",
-              "payload": {
-                "purpose": "${form.purpose}"
-              }
-            }
-          },
-          {
             "type": "TextInput",
-            "name": "other_purpose",
-            "label": "Enter purpose",
-            "input-type": "text",
-            "required": "${data.show_other_purpose}",
-            "visible": "${data.show_other_purpose}"
+            "name": "visitor_mobile",
+            "label": "Mobile Number",
+            "input-type": "phone",
+            "required": true
           },
           {
             "type": "RadioButtonsGroup",
             "name": "visiting_to",
-            "label": "Visiting to?",
+            "label": "Visiting To",
             "required": true,
             "data-source": [
               { "id": "unit_i", "title": "Unit I" },
@@ -67,40 +82,19 @@
             ]
           },
           {
-            "type": "TextInput",
-            "name": "no_of_people",
-            "label": "No. of people",
-            "input-type": "number",
-            "required": true
-          },
-          {
-            "type": "TextInput",
-            "name": "visitor_name",
-            "label": "Visitor name",
-            "input-type": "text",
-            "required": true
-          },
-          {
-            "type": "TextInput",
-            "name": "visitor_mobile",
-            "label": "Visitor mobile",
-            "input-type": "phone",
-            "required": true
-          },
-          {
             "type": "Footer",
             "label": "Submit",
             "on-click-action": {
               "name": "complete",
               "payload": {
+                "visitor_type": "${form.visitor_type}",
+                "purpose": "${form.purpose}",
+                "visitor_name": "${form.visitor_name}",
+                "no_of_people": "${form.no_of_people}",
                 "coming_on": "${form.coming_on}",
                 "coming_from": "${form.coming_from}",
-                "purpose": "${form.purpose}",
-                "other_purpose": "${form.other_purpose}",
-                "visiting_to": "${form.visiting_to}",
-                "no_of_people": "${form.no_of_people}",
-                "visitor_name": "${form.visitor_name}",
-                "visitor_mobile": "${form.visitor_mobile}"
+                "visitor_mobile": "${form.visitor_mobile}",
+                "visiting_to": "${form.visiting_to}"
               }
             }
           }

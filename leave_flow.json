@@ -14,9 +14,21 @@
           "type": "boolean",
           "__example__": false
         },
-        "show_other_reason": {
+        "show_duration": {
           "type": "boolean",
           "__example__": false
+        },
+        "show_leave_counts": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "leaves_current_month": {
+          "type": "string",
+          "__example__": "0"
+        },
+        "leaves_last_month": {
+          "type": "string",
+          "__example__": "0"
         }
       },
       "layout": {
@@ -25,30 +37,11 @@
           {
             "type": "RadioButtonsGroup",
             "name": "leave_when",
-            "label": "When is your leave?",
+            "label": "Leave Date",
             "required": true,
             "data-source": [
-              { "id": "today", "title": "Today" },
               { "id": "tomorrow", "title": "Tomorrow" },
               { "id": "other", "title": "Other" }
-            ],
-            "on-select-action": {
-              "name": "data_exchange",
-              "payload": {
-                "leave_when": "${form.leave_when}",
-                "leave_duration": "${form.leave_duration}",
-                "leave_reason": "${form.leave_reason}"
-              }
-            }
-          },
-          {
-            "type": "RadioButtonsGroup",
-            "name": "leave_duration",
-            "label": "Duration",
-            "required": true,
-            "data-source": [
-              { "id": "full_day", "title": "Full day" },
-              { "id": "half_day", "title": "Half day" }
             ],
             "on-select-action": {
               "name": "data_exchange",
@@ -75,13 +68,13 @@
           },
           {
             "type": "RadioButtonsGroup",
-            "name": "leave_reason",
-            "label": "Leave reason",
-            "required": true,
+            "name": "leave_duration",
+            "label": "Duration",
+            "required": "${data.show_duration}",
+            "visible": "${data.show_duration}",
             "data-source": [
-              { "id": "sick_leave", "title": "Sick Leave" },
-              { "id": "casual_leave", "title": "Casual Leave" },
-              { "id": "other", "title": "Other" }
+              { "id": "full_day", "title": "Full day" },
+              { "id": "half_day", "title": "Half day" }
             ],
             "on-select-action": {
               "name": "data_exchange",
@@ -93,12 +86,32 @@
             }
           },
           {
-            "type": "TextInput",
-            "name": "other_reason",
-            "label": "Enter reason",
-            "input-type": "text",
-            "required": "${data.show_other_reason}",
-            "visible": "${data.show_other_reason}"
+            "type": "RadioButtonsGroup",
+            "name": "leave_reason",
+            "label": "Leave type",
+            "required": true,
+            "data-source": [
+              { "id": "health_issue", "title": "Health Issue" },
+              { "id": "personal", "title": "Personal" }
+            ],
+            "on-select-action": {
+              "name": "data_exchange",
+              "payload": {
+                "leave_when": "${form.leave_when}",
+                "leave_duration": "${form.leave_duration}",
+                "leave_reason": "${form.leave_reason}"
+              }
+            }
+          },
+          {
+            "type": "TextBody",
+            "text": "Leaves in Current Month: ${data.leaves_current_month}",
+            "visible": "${data.show_leave_counts}"
+          },
+          {
+            "type": "TextBody",
+            "text": "Leaves in Last Month: ${data.leaves_last_month}",
+            "visible": "${data.show_leave_counts}"
           },
           {
             "type": "Footer",
@@ -110,8 +123,7 @@
                 "leave_duration": "${form.leave_duration}",
                 "from_date": "${form.from_date}",
                 "to_date": "${form.to_date}",
-                "leave_reason": "${form.leave_reason}",
-                "other_reason": "${form.other_reason}"
+                "leave_reason": "${form.leave_reason}"
               }
             }
           }

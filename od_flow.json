@@ -10,7 +10,15 @@
       "title": "OD Request",
       "terminal": true,
       "data": {
-        "show_other_reason": {
+        "show_purpose": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "show_time_required": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "show_company_vehicle": {
           "type": "boolean",
           "__example__": false
         },
@@ -35,35 +43,47 @@
         "children": [
           {
             "type": "RadioButtonsGroup",
-            "name": "od_reason",
-            "label": "Visiting to?",
+            "name": "visiting_to",
+            "label": "Visiting To",
             "required": true,
             "data-source": [
               { "id": "unit_i", "title": "Unit I" },
               { "id": "unit_ii", "title": "Unit II" },
-              { "id": "other", "title": "Other" }
+              { "id": "hosur_town", "title": "Hosur Town" },
+              { "id": "supplier_place", "title": "Supplier Place" },
+              { "id": "bangalore", "title": "Bangalore" },
+              { "id": "md_home", "title": "MD Home" }
             ],
             "on-select-action": {
               "name": "data_exchange",
               "payload": {
-                "od_reason": "${form.od_reason}",
+                "visiting_to": "${form.visiting_to}",
                 "company_vehicle": "${form.company_vehicle}"
               }
             }
           },
           {
             "type": "TextInput",
-            "name": "other_reason",
-            "label": "Enter reason",
+            "name": "purpose",
+            "label": "Purpose",
             "input-type": "text",
-            "required": "${data.show_other_reason}",
-            "visible": "${data.show_other_reason}"
+            "required": "${data.show_purpose}",
+            "visible": "${data.show_purpose}"
+          },
+          {
+            "type": "TextInput",
+            "name": "time_required",
+            "label": "Approximate Time Required (In Hours)",
+            "input-type": "number",
+            "required": "${data.show_time_required}",
+            "visible": "${data.show_time_required}"
           },
           {
             "type": "RadioButtonsGroup",
             "name": "company_vehicle",
             "label": "Company vehicle?",
-            "required": true,
+            "required": "${data.show_company_vehicle}",
+            "visible": "${data.show_company_vehicle}",
             "data-source": [
               { "id": "no", "title": "No" },
               { "id": "yes", "title": "Yes" }
@@ -71,7 +91,7 @@
             "on-select-action": {
               "name": "data_exchange",
               "payload": {
-                "od_reason": "${form.od_reason}",
+                "visiting_to": "${form.visiting_to}",
                 "company_vehicle": "${form.company_vehicle}"
               }
             }
@@ -90,8 +110,9 @@
             "on-click-action": {
               "name": "complete",
               "payload": {
-                "od_reason": "${form.od_reason}",
-                "other_reason": "${form.other_reason}",
+                "visiting_to": "${form.visiting_to}",
+                "purpose": "${form.purpose}",
+                "time_required": "${form.time_required}",
                 "company_vehicle": "${form.company_vehicle}",
                 "vehicle": "${form.vehicle}"
               }
