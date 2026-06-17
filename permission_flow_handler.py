@@ -100,8 +100,11 @@ def _needs_shift(phone: str, permission_for: str) -> bool:
         return True
 
 
-def _cl_form_data() -> dict:
-    return {
+def _cl_form_data(phone: str, expanded: dict) -> dict:
+    ud = get_user_by_phone(phone) if phone else None
+    shift = _normalize_shift(_pick(expanded, "permission_shift"))
+
+    data = {
         "show_cl_name": True,
         "show_shift": True,
         "show_type": False,
@@ -112,6 +115,18 @@ def _cl_form_data() -> dict:
         "out_time_slots": _EMPTY_SLOTS,
         "in_time_slots": _EMPTY_SLOTS,
     }
+
+    if not shift:
+        return data
+
+    out_slots, _in_slots = build_permission_time_slots(
+        ud,
+        permission_shift=shift,
+        permission_type="early_out",
+    )
+    data["out_time_slots"] = out_slots
+    data["show_expected_out"] = bool(out_slots)
+    return data
 
 
 def _myself_form_data(phone: str, expanded: dict) -> dict:
@@ -187,7 +202,7 @@ def build_permission_flow_response(flow_data: dict) -> dict:
             data = {}
         elif permission_for == "cl":
             screen = SCREEN_FORM
-            data = _cl_form_data()
+            data = _cl_form_data(phone, expanded)
         elif permission_for == "myself":
             screen = SCREEN_FORM
             data = _myself_form_data(phone, expanded)

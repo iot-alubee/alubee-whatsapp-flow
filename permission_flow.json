@@ -134,7 +134,7 @@
             "type": "Dropdown",
             "name": "expected_out",
             "label": "Expected OUT time",
-            "required": false,
+            "required": "${data.show_expected_out}",
             "visible": "${data.show_expected_out}",
             "data-source": "${data.out_time_slots}",
             "on-select-action": {
@@ -151,7 +151,7 @@
             "type": "Dropdown",
             "name": "expected_in",
             "label": "Expected IN time",
-            "required": false,
+            "required": "${data.show_expected_in}",
             "visible": "${data.show_expected_in}",
             "data-source": "${data.in_time_slots}"
           },
