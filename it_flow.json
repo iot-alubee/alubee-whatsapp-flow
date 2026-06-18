@@ -1,0 +1,112 @@
+{
+  "version": "7.2",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "IT_FORM": []
+  },
+  "screens": [
+    {
+      "id": "IT_FORM",
+      "title": "IT Request",
+      "terminal": true,
+      "data": {
+        "category_options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" }
+            }
+          },
+          "__example__": []
+        },
+        "issue_type_options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" }
+            }
+          },
+          "__example__": []
+        },
+        "show_issue_type": {
+          "type": "boolean",
+          "__example__": false
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Dropdown",
+            "name": "it_category",
+            "label": "Category",
+            "required": true,
+            "data-source": "${data.category_options}",
+            "on-select-action": {
+              "name": "data_exchange",
+              "payload": {
+                "it_category": "${form.it_category}",
+                "issue_type": "${form.issue_type}",
+                "description": "${form.description}",
+                "priority": "${form.priority}"
+              }
+            }
+          },
+          {
+            "type": "Dropdown",
+            "name": "issue_type",
+            "label": "Issue Type",
+            "required": "${data.show_issue_type}",
+            "visible": "${data.show_issue_type}",
+            "data-source": "${data.issue_type_options}"
+          },
+          {
+            "type": "TextInput",
+            "name": "description",
+            "label": "Details",
+            "input-type": "text",
+            "required": false
+          },
+          {
+            "type": "RadioButtonsGroup",
+            "name": "priority",
+            "label": "Priority",
+            "required": true,
+            "data-source": [
+              { "id": "high", "title": "High" },
+              { "id": "normal", "title": "Normal" },
+              { "id": "low", "title": "Low" }
+            ]
+          },
+          {
+            "type": "PhotoPicker",
+            "name": "issue_photo",
+            "label": "Issue photo",
+            "photo-source": "camera_gallery",
+            "min-uploaded-photos": 0,
+            "max-uploaded-photos": 1,
+            "max-file-size-kb": 10240
+          },
+          {
+            "type": "Footer",
+            "label": "Submit",
+            "on-click-action": {
+              "name": "complete",
+              "payload": {
+                "it_category": "${form.it_category}",
+                "issue_type": "${form.issue_type}",
+                "description": "${form.description}",
+                "priority": "${form.priority}",
+                "issue_photo": "${form.issue_photo}"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -46,7 +46,7 @@ def wa_id_from_phone(phone: str) -> str:
 
 def phone_from_flow_token(token: str) -> str:
     t = (token or "").strip()
-    for prefix in ("perm_", "leave_", "visitor_", "od_"):
+    for prefix in ("perm_", "leave_", "visitor_", "od_", "it_"):
         if t.lower().startswith(prefix):
             d = _digits(t[len(prefix) :])
             if len(d) == 10:
