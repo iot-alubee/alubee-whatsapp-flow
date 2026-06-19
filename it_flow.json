@@ -21,6 +21,17 @@
           },
           "__example__": []
         },
+        "machine_no_options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" }
+            }
+          },
+          "__example__": []
+        },
         "issue_type_options": {
           "type": "array",
           "items": {
@@ -32,9 +43,25 @@
           },
           "__example__": []
         },
+        "show_machine_no": {
+          "type": "boolean",
+          "__example__": false
+        },
         "show_issue_type": {
           "type": "boolean",
           "__example__": false
+        },
+        "employee_phone": {
+          "type": "string",
+          "__example__": ""
+        },
+        "employee_department": {
+          "type": "string",
+          "__example__": ""
+        },
+        "employee_jmd_route": {
+          "type": "string",
+          "__example__": ""
         }
       },
       "layout": {
@@ -50,11 +77,23 @@
               "name": "data_exchange",
               "payload": {
                 "it_category": "${form.it_category}",
+                "employee_phone": "${data.employee_phone}",
+                "employee_department": "${data.employee_department}",
+                "employee_jmd_route": "${data.employee_jmd_route}",
+                "machine_no": "${form.machine_no}",
                 "issue_type": "${form.issue_type}",
                 "description": "${form.description}",
                 "priority": "${form.priority}"
               }
             }
+          },
+          {
+            "type": "Dropdown",
+            "name": "machine_no",
+            "label": "Machine No",
+            "required": "${data.show_machine_no}",
+            "visible": "${data.show_machine_no}",
+            "data-source": "${data.machine_no_options}"
           },
           {
             "type": "Dropdown",
@@ -98,6 +137,7 @@
               "name": "complete",
               "payload": {
                 "it_category": "${form.it_category}",
+                "machine_no": "${form.machine_no}",
                 "issue_type": "${form.issue_type}",
                 "description": "${form.description}",
                 "priority": "${form.priority}",
