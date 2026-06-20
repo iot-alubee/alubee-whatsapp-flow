@@ -2,14 +2,13 @@
   "version": "7.2",
   "data_api_version": "3.0",
   "routing_model": {
-    "VEHICLE_REQUEST_FORM": ["VEHICLE_REQUEST_TIME"],
-    "VEHICLE_REQUEST_TIME": []
+    "VEHICLE_REQUEST_FORM": []
   },
   "screens": [
     {
       "id": "VEHICLE_REQUEST_FORM",
       "title": "Vehicle Request",
-      "terminal": false,
+      "terminal": true,
       "data": {
         "destination_options": {
           "type": "array",
@@ -183,74 +182,9 @@
             "init-value": "${data.estimated_distance}"
           },
           {
-            "type": "Footer",
-            "label": "Next",
-            "on-click-action": {
-              "name": "navigate",
-              "next": {
-                "type": "screen",
-                "name": "VEHICLE_REQUEST_TIME"
-              },
-              "payload": {
-                "from_unit": "${form.from_unit}",
-                "request_type": "${form.request_type}",
-                "destination_category": "${form.destination_category}",
-                "location_details": "${form.location_details}",
-                "destination": "${form.destination}",
-                "vehicle_type": "${form.vehicle_type}",
-                "hire_vehicle_type": "${form.hire_vehicle_type}",
-                "load_size": "${form.load_size}"
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
-      "id": "VEHICLE_REQUEST_TIME",
-      "title": "Required Time",
-      "terminal": true,
-      "data": {
-        "from_unit": {
-          "type": "string",
-          "__example__": "unit_i"
-        },
-        "request_type": {
-          "type": "string",
-          "__example__": "delivery"
-        },
-        "destination_category": {
-          "type": "string",
-          "__example__": "supplier"
-        },
-        "location_details": {
-          "type": "string",
-          "__example__": ""
-        },
-        "destination": {
-          "type": "string",
-          "__example__": "neocol"
-        },
-        "vehicle_type": {
-          "type": "string",
-          "__example__": "in_house"
-        },
-        "hire_vehicle_type": {
-          "type": "string",
-          "__example__": ""
-        },
-        "load_size": {
-          "type": "string",
-          "__example__": "half_load"
-        }
-      },
-      "layout": {
-        "type": "SingleColumnLayout",
-        "children": [
-          {
-            "type": "RadioButtonsGroup",
+            "type": "Dropdown",
             "name": "required_time",
-            "label": "Select time",
+            "label": "Required Time",
             "required": true,
             "data-source": [
               { "id": "08:30", "title": "8:30 AM" },
@@ -285,14 +219,14 @@
             "on-click-action": {
               "name": "complete",
               "payload": {
-                "from_unit": "${data.from_unit}",
-                "request_type": "${data.request_type}",
-                "destination_category": "${data.destination_category}",
-                "location_details": "${data.location_details}",
-                "destination": "${data.destination}",
-                "vehicle_type": "${data.vehicle_type}",
-                "hire_vehicle_type": "${data.hire_vehicle_type}",
-                "load_size": "${data.load_size}",
+                "from_unit": "${form.from_unit}",
+                "request_type": "${form.request_type}",
+                "destination_category": "${form.destination_category}",
+                "location_details": "${form.location_details}",
+                "destination": "${form.destination}",
+                "vehicle_type": "${form.vehicle_type}",
+                "hire_vehicle_type": "${form.hire_vehicle_type}",
+                "load_size": "${form.load_size}",
                 "required_time": "${form.required_time}"
               }
             }
