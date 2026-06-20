@@ -51,7 +51,7 @@ def phone_from_flow_token(token: str) -> str:
         d = _digits(first)
         if len(d) == 10:
             return d
-    for prefix in ("perm_", "leave_", "visitor_", "od_", "it_"):
+    for prefix in ("perm_", "leave_", "visitor_", "od_", "it_", "maintenance_", "vehicle_request_"):
         if t.lower().startswith(prefix):
             d = _digits(t[len(prefix) :])
             if len(d) == 10:
@@ -70,6 +70,26 @@ def it_user_context_from_token(token: str) -> tuple[str, str, str]:
     if not t.lower().startswith("it_"):
         return "", "", ""
     parts = [p for p in t[3:].split("_") if p]
+    if not parts:
+        return "", "", ""
+    phone = _digits(parts[0])
+    if len(phone) != 10:
+        return "", "", ""
+    if len(parts) < 3:
+        return phone, "", ""
+    dept = parts[1].strip().upper()
+    if dept == "FET":
+        dept = "FETTLING"
+    route = parts[2].strip().upper()
+    return phone, dept, route
+
+
+def maintenance_user_context_from_token(token: str) -> tuple[str, str, str]:
+    """Parse maintenance_{phone} or maintenance_{phone}_{dept}_{route} flow tokens."""
+    t = (token or "").strip()
+    if not t.lower().startswith("maintenance_"):
+        return "", "", ""
+    parts = [p for p in t[12:].split("_") if p]
     if not parts:
         return "", "", ""
     phone = _digits(parts[0])

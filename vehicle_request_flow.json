@@ -1,0 +1,200 @@
+{
+  "version": "7.2",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "VEHICLE_REQUEST_FORM": []
+  },
+  "screens": [
+    {
+      "id": "VEHICLE_REQUEST_FORM",
+      "title": "Vehicle Request",
+      "terminal": true,
+      "data": {
+        "destination_options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" }
+            }
+          },
+          "__example__": [
+            { "id": "neocol", "title": "Neocol" },
+            { "id": "v_tech", "title": "V-Tech" }
+          ]
+        },
+        "show_location_details": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "show_destination": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "show_vehicle_type": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "show_hire_vehicle_type": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "show_load_size": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "show_distance": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "estimated_distance": {
+          "type": "string",
+          "__example__": ""
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "RadioButtonsGroup",
+            "name": "request_type",
+            "label": "Request Type",
+            "required": true,
+            "data-source": [
+              { "id": "delivery", "title": "Delivery" },
+              { "id": "pickup", "title": "Pickup" }
+            ]
+          },
+          {
+            "type": "Dropdown",
+            "name": "destination_category",
+            "label": "Destination Category",
+            "required": true,
+            "data-source": [
+              { "id": "supplier", "title": "Supplier" },
+              { "id": "sub_contractor", "title": "Sub Contractor" },
+              { "id": "customer", "title": "Customer" },
+              { "id": "purchase", "title": "Purchase" },
+              { "id": "transport_office", "title": "Transport Office" }
+            ],
+            "on-select-action": {
+              "name": "data_exchange",
+              "payload": {
+                "request_type": "${form.request_type}",
+                "destination_category": "${form.destination_category}"
+              }
+            }
+          },
+          {
+            "type": "TextInput",
+            "name": "location_details",
+            "label": "Location / Details",
+            "input-type": "text",
+            "required": "${data.show_location_details}",
+            "visible": "${data.show_location_details}"
+          },
+          {
+            "type": "Dropdown",
+            "name": "destination",
+            "label": "Destination",
+            "required": "${data.show_destination}",
+            "visible": "${data.show_destination}",
+            "data-source": "${data.destination_options}",
+            "on-select-action": {
+              "name": "data_exchange",
+              "payload": {
+                "request_type": "${form.request_type}",
+                "destination_category": "${form.destination_category}",
+                "location_details": "${form.location_details}",
+                "destination": "${form.destination}"
+              }
+            }
+          },
+          {
+            "type": "RadioButtonsGroup",
+            "name": "vehicle_type",
+            "label": "Vehicle Type",
+            "required": "${data.show_vehicle_type}",
+            "visible": "${data.show_vehicle_type}",
+            "data-source": [
+              { "id": "in_house", "title": "Internal" },
+              { "id": "external_hire", "title": "External" }
+            ],
+            "on-select-action": {
+              "name": "data_exchange",
+              "payload": {
+                "request_type": "${form.request_type}",
+                "destination_category": "${form.destination_category}",
+                "location_details": "${form.location_details}",
+                "destination": "${form.destination}",
+                "vehicle_type": "${form.vehicle_type}"
+              }
+            }
+          },
+          {
+            "type": "RadioButtonsGroup",
+            "name": "hire_vehicle_type",
+            "label": "Hire Vehicle Type",
+            "required": "${data.show_hire_vehicle_type}",
+            "visible": "${data.show_hire_vehicle_type}",
+            "data-source": [
+              { "id": "dost", "title": "Dost" },
+              { "id": "eicher", "title": "Eicher" },
+              { "id": "auto", "title": "Auto" }
+            ]
+          },
+          {
+            "type": "RadioButtonsGroup",
+            "name": "load_size",
+            "label": "Load Size",
+            "required": "${data.show_load_size}",
+            "visible": "${data.show_load_size}",
+            "data-source": [
+              { "id": "full_load", "title": "Full Load" },
+              { "id": "half_load", "title": "Half Load" },
+              { "id": "quarter_load", "title": "Quarter Load" },
+              { "id": "single_item", "title": "Single Item" },
+              { "id": "empty_vehicle", "title": "Empty Vehicle" }
+            ]
+          },
+          {
+            "type": "TextInput",
+            "name": "estimated_distance_display",
+            "label": "Estimated Distance",
+            "input-type": "text",
+            "required": false,
+            "enabled": false,
+            "visible": "${data.show_distance}",
+            "init-value": "${data.estimated_distance}"
+          },
+          {
+            "type": "TextInput",
+            "name": "required_at",
+            "label": "Required At",
+            "input-type": "text",
+            "required": true,
+            "helper-text": "Date and time needed, e.g. 18-Jun-2026 14:00"
+          },
+          {
+            "type": "Footer",
+            "label": "Submit",
+            "on-click-action": {
+              "name": "complete",
+              "payload": {
+                "request_type": "${form.request_type}",
+                "destination_category": "${form.destination_category}",
+                "location_details": "${form.location_details}",
+                "destination": "${form.destination}",
+                "vehicle_type": "${form.vehicle_type}",
+                "hire_vehicle_type": "${form.hire_vehicle_type}",
+                "load_size": "${form.load_size}",
+                "required_at": "${form.required_at}"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

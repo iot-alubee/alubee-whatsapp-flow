@@ -1,0 +1,181 @@
+{
+  "version": "7.2",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "MAINTENANCE_FORM": []
+  },
+  "screens": [
+    {
+      "id": "MAINTENANCE_FORM",
+      "title": "Maintenance Request",
+      "terminal": true,
+      "data": {
+        "machine_type_options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" }
+            }
+          },
+          "__example__": [
+            { "id": "drilling", "title": "Drilling" }
+          ]
+        },
+        "machine_no_options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" }
+            }
+          },
+          "__example__": [
+            { "id": "125t_1", "title": "125T-1" }
+          ]
+        },
+        "issue_category_options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" }
+            }
+          },
+          "__example__": [
+            { "id": "motor", "title": "Motor" }
+          ]
+        },
+        "show_machine_type_dropdown": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "show_machine_type_fixed": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "machine_type_display": {
+          "type": "string",
+          "__example__": "PDC"
+        },
+        "show_machine_no": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "show_issue_category": {
+          "type": "boolean",
+          "__example__": false
+        },
+        "employee_phone": {
+          "type": "string",
+          "__example__": ""
+        },
+        "employee_department": {
+          "type": "string",
+          "__example__": ""
+        },
+        "employee_jmd_route": {
+          "type": "string",
+          "__example__": ""
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Dropdown",
+            "name": "machine_type",
+            "label": "Machine Type",
+            "required": "${data.show_machine_type_fixed}",
+            "visible": "${data.show_machine_type_fixed}",
+            "data-source": [
+              { "id": "pdc", "title": "PDC" }
+            ],
+            "on-select-action": {
+              "name": "data_exchange",
+              "payload": {
+                "machine_type": "${form.machine_type}",
+                "machine_no": "${form.machine_no}",
+                "issue_category": "${form.issue_category}",
+                "employee_phone": "${data.employee_phone}",
+                "employee_department": "${data.employee_department}",
+                "employee_jmd_route": "${data.employee_jmd_route}"
+              }
+            }
+          },
+          {
+            "type": "Dropdown",
+            "name": "machine_type",
+            "label": "Machine Type",
+            "required": "${data.show_machine_type_dropdown}",
+            "visible": "${data.show_machine_type_dropdown}",
+            "data-source": "${data.machine_type_options}",
+            "on-select-action": {
+              "name": "data_exchange",
+              "payload": {
+                "machine_type": "${form.machine_type}",
+                "machine_no": "${form.machine_no}",
+                "issue_category": "${form.issue_category}",
+                "employee_phone": "${data.employee_phone}",
+                "employee_department": "${data.employee_department}",
+                "employee_jmd_route": "${data.employee_jmd_route}"
+              }
+            }
+          },
+          {
+            "type": "Dropdown",
+            "name": "machine_no",
+            "label": "Machine No",
+            "required": "${data.show_machine_no}",
+            "visible": "${data.show_machine_no}",
+            "data-source": "${data.machine_no_options}",
+            "on-select-action": {
+              "name": "data_exchange",
+              "payload": {
+                "machine_type": "${form.machine_type}",
+                "machine_no": "${form.machine_no}",
+                "issue_category": "${form.issue_category}",
+                "employee_phone": "${data.employee_phone}",
+                "employee_department": "${data.employee_department}",
+                "employee_jmd_route": "${data.employee_jmd_route}"
+              }
+            }
+          },
+          {
+            "type": "Dropdown",
+            "name": "issue_category",
+            "label": "Issue Category",
+            "required": "${data.show_issue_category}",
+            "visible": "${data.show_issue_category}",
+            "data-source": "${data.issue_category_options}"
+          },
+          {
+            "type": "PhotoPicker",
+            "name": "issue_photo",
+            "label": "Issue photo",
+            "photo-source": "camera_gallery",
+            "min-uploaded-photos": 1,
+            "max-uploaded-photos": 1,
+            "max-file-size-kb": 10240
+          },
+          {
+            "type": "Footer",
+            "label": "Submit",
+            "on-click-action": {
+              "name": "complete",
+              "payload": {
+                "machine_type": "${form.machine_type}",
+                "machine_no": "${form.machine_no}",
+                "issue_category": "${form.issue_category}",
+                "issue_photo": "${form.issue_photo}"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
