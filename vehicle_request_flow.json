@@ -2,13 +2,14 @@
   "version": "7.2",
   "data_api_version": "3.0",
   "routing_model": {
-    "VEHICLE_REQUEST_FORM": []
+    "VEHICLE_REQUEST_FORM": ["VEHICLE_REQUEST_TIME"],
+    "VEHICLE_REQUEST_TIME": []
   },
   "screens": [
     {
       "id": "VEHICLE_REQUEST_FORM",
       "title": "Vehicle Request",
-      "terminal": true,
+      "terminal": false,
       "data": {
         "destination_options": {
           "type": "array",
@@ -57,6 +58,16 @@
         "type": "SingleColumnLayout",
         "children": [
           {
+            "type": "Dropdown",
+            "name": "from_unit",
+            "label": "From",
+            "required": true,
+            "data-source": [
+              { "id": "unit_i", "title": "Unit I" },
+              { "id": "unit_ii", "title": "Unit II" }
+            ]
+          },
+          {
             "type": "RadioButtonsGroup",
             "name": "request_type",
             "label": "Request Type",
@@ -81,6 +92,7 @@
             "on-select-action": {
               "name": "data_exchange",
               "payload": {
+                "from_unit": "${form.from_unit}",
                 "request_type": "${form.request_type}",
                 "destination_category": "${form.destination_category}"
               }
@@ -104,6 +116,7 @@
             "on-select-action": {
               "name": "data_exchange",
               "payload": {
+                "from_unit": "${form.from_unit}",
                 "request_type": "${form.request_type}",
                 "destination_category": "${form.destination_category}",
                 "location_details": "${form.location_details}",
@@ -124,6 +137,7 @@
             "on-select-action": {
               "name": "data_exchange",
               "payload": {
+                "from_unit": "${form.from_unit}",
                 "request_type": "${form.request_type}",
                 "destination_category": "${form.destination_category}",
                 "location_details": "${form.location_details}",
@@ -169,12 +183,101 @@
             "init-value": "${data.estimated_distance}"
           },
           {
-            "type": "TextInput",
-            "name": "required_at",
-            "label": "Required At",
-            "input-type": "text",
+            "type": "Footer",
+            "label": "Next",
+            "on-click-action": {
+              "name": "navigate",
+              "next": {
+                "type": "screen",
+                "name": "VEHICLE_REQUEST_TIME"
+              },
+              "payload": {
+                "from_unit": "${form.from_unit}",
+                "request_type": "${form.request_type}",
+                "destination_category": "${form.destination_category}",
+                "location_details": "${form.location_details}",
+                "destination": "${form.destination}",
+                "vehicle_type": "${form.vehicle_type}",
+                "hire_vehicle_type": "${form.hire_vehicle_type}",
+                "load_size": "${form.load_size}"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "VEHICLE_REQUEST_TIME",
+      "title": "Required Time",
+      "terminal": true,
+      "data": {
+        "from_unit": {
+          "type": "string",
+          "__example__": "unit_i"
+        },
+        "request_type": {
+          "type": "string",
+          "__example__": "delivery"
+        },
+        "destination_category": {
+          "type": "string",
+          "__example__": "supplier"
+        },
+        "location_details": {
+          "type": "string",
+          "__example__": ""
+        },
+        "destination": {
+          "type": "string",
+          "__example__": "neocol"
+        },
+        "vehicle_type": {
+          "type": "string",
+          "__example__": "in_house"
+        },
+        "hire_vehicle_type": {
+          "type": "string",
+          "__example__": ""
+        },
+        "load_size": {
+          "type": "string",
+          "__example__": "half_load"
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "RadioButtonsGroup",
+            "name": "required_time",
+            "label": "Select time",
             "required": true,
-            "helper-text": "Date and time needed, e.g. 18-Jun-2026 14:00"
+            "data-source": [
+              { "id": "08:30", "title": "8:30 AM" },
+              { "id": "09:00", "title": "9:00 AM" },
+              { "id": "09:30", "title": "9:30 AM" },
+              { "id": "10:00", "title": "10:00 AM" },
+              { "id": "10:30", "title": "10:30 AM" },
+              { "id": "11:00", "title": "11:00 AM" },
+              { "id": "11:30", "title": "11:30 AM" },
+              { "id": "12:00", "title": "12:00 PM" },
+              { "id": "12:30", "title": "12:30 PM" },
+              { "id": "13:00", "title": "1:00 PM" },
+              { "id": "13:30", "title": "1:30 PM" },
+              { "id": "14:00", "title": "2:00 PM" },
+              { "id": "14:30", "title": "2:30 PM" },
+              { "id": "15:00", "title": "3:00 PM" },
+              { "id": "15:30", "title": "3:30 PM" },
+              { "id": "16:00", "title": "4:00 PM" },
+              { "id": "16:30", "title": "4:30 PM" },
+              { "id": "17:00", "title": "5:00 PM" },
+              { "id": "17:30", "title": "5:30 PM" },
+              { "id": "18:00", "title": "6:00 PM" },
+              { "id": "18:30", "title": "6:30 PM" },
+              { "id": "19:00", "title": "7:00 PM" },
+              { "id": "19:30", "title": "7:30 PM" },
+              { "id": "20:00", "title": "8:00 PM" }
+            ]
           },
           {
             "type": "Footer",
@@ -182,14 +285,15 @@
             "on-click-action": {
               "name": "complete",
               "payload": {
-                "request_type": "${form.request_type}",
-                "destination_category": "${form.destination_category}",
-                "location_details": "${form.location_details}",
-                "destination": "${form.destination}",
-                "vehicle_type": "${form.vehicle_type}",
-                "hire_vehicle_type": "${form.hire_vehicle_type}",
-                "load_size": "${form.load_size}",
-                "required_at": "${form.required_at}"
+                "from_unit": "${data.from_unit}",
+                "request_type": "${data.request_type}",
+                "destination_category": "${data.destination_category}",
+                "location_details": "${data.location_details}",
+                "destination": "${data.destination}",
+                "vehicle_type": "${data.vehicle_type}",
+                "hire_vehicle_type": "${data.hire_vehicle_type}",
+                "load_size": "${data.load_size}",
+                "required_time": "${form.required_time}"
               }
             }
           }

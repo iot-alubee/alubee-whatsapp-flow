@@ -6,7 +6,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-VEHICLE_REQUEST_SCREEN = "VEHICLE_REQUEST_FORM"
+VEHICLE_REQUEST_FORM_SCREEN = "VEHICLE_REQUEST_FORM"
+VEHICLE_REQUEST_TIME_SCREEN = "VEHICLE_REQUEST_TIME"
+VEHICLE_REQUEST_SCREEN = VEHICLE_REQUEST_FORM_SCREEN
 _LOAD_ACTIONS = frozenset({"init", "navigate", "data_exchange"})
 
 SUPPLIER_DESTINATIONS: list[dict[str, str]] = [
@@ -123,12 +125,17 @@ def _screen_data(form_data: dict) -> dict:
 def build_vehicle_request_flow_response(flow_data: dict) -> dict:
     action = (flow_data.get("action") or "").strip().lower()
     screen = (
-        flow_data.get("screen") or VEHICLE_REQUEST_SCREEN
-    ).strip() or VEHICLE_REQUEST_SCREEN
+        flow_data.get("screen") or VEHICLE_REQUEST_FORM_SCREEN
+    ).strip() or VEHICLE_REQUEST_FORM_SCREEN
     form_data = flow_data.get("data") if isinstance(flow_data.get("data"), dict) else {}
 
     if action == "ping":
         return {"version": "3.0", "data": {"status": "active"}}
+
+    if screen == VEHICLE_REQUEST_TIME_SCREEN:
+        if action not in _LOAD_ACTIONS:
+            logger.warning("vehicle request flow unexpected action=%s screen=%s", action, screen)
+        return {"version": "3.0", "screen": VEHICLE_REQUEST_TIME_SCREEN, "data": {}}
 
     if action not in _LOAD_ACTIONS:
         logger.warning("vehicle request flow unexpected action=%s", action)
