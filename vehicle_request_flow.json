@@ -56,7 +56,17 @@
             "data-source": [
               { "id": "unit_i", "title": "Unit I" },
               { "id": "unit_ii", "title": "Unit II" }
-            ]
+            ],
+            "on-select-action": {
+              "name": "data_exchange",
+              "payload": {
+                "from_unit": "${form.from_unit}",
+                "request_type": "${form.request_type}",
+                "destination_category": "${form.destination_category}",
+                "location_details": "${form.location_details}",
+                "destination": "${form.destination}"
+              }
+            }
           },
           {
             "type": "RadioButtonsGroup",
@@ -78,7 +88,8 @@
               { "id": "sub_contractor", "title": "Sub Contractor" },
               { "id": "customer", "title": "Customer" },
               { "id": "purchase", "title": "Purchase" },
-              { "id": "transport_office", "title": "Transport Office" }
+              { "id": "transport_office", "title": "Transport Office" },
+              { "id": "other_unit", "title": "Other Unit" }
             ],
             "on-select-action": {
               "name": "data_exchange",

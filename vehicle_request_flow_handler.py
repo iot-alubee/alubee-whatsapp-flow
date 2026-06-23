@@ -49,6 +49,8 @@ DESTINATION_DISTANCE_KM: dict[str, int] = {
     "bagalur_road": 10,
     "seg_mould_inspection": 50,
     "unit_1_to_unit_2": 3,
+    "unit_i": 3,
+    "unit_ii": 3,
     "rajeshwari_layout": 5,
     "kamal": 2,
     "lakshmi_steels": 6,
@@ -58,7 +60,12 @@ DESTINATION_DISTANCE_KM: dict[str, int] = {
 }
 
 _MANUAL_CATEGORIES = frozenset({"purchase", "transport_office"})
-_DROPDOWN_CATEGORIES = frozenset({"supplier", "sub_contractor", "customer"})
+_DROPDOWN_CATEGORIES = frozenset({"supplier", "sub_contractor", "customer", "other_unit"})
+
+_OTHER_UNIT_DESTINATIONS: dict[str, dict[str, str]] = {
+    "unit_i": {"id": "unit_ii", "title": "Unit II"},
+    "unit_ii": {"id": "unit_i", "title": "Unit I"},
+}
 
 
 def _pick(data: dict, key: str) -> str:
@@ -70,13 +77,16 @@ def _pick(data: dict, key: str) -> str:
     return str(val).strip().lower()
 
 
-def _destination_options(category: str) -> list[dict[str, str]]:
+def _destination_options(category: str, from_unit: str = "") -> list[dict[str, str]]:
     if category == "supplier":
         return SUPPLIER_DESTINATIONS
     if category == "sub_contractor":
         return SUB_CONTRACTOR_DESTINATIONS
     if category == "customer":
         return CUSTOMER_DESTINATIONS
+    if category == "other_unit":
+        dest = _OTHER_UNIT_DESTINATIONS.get(from_unit)
+        return [dest] if dest else []
     return []
 
 
@@ -98,15 +108,19 @@ def _estimated_distance(category: str, destination: str) -> str:
 def _screen_data(form_data: dict) -> dict:
     category = _pick(form_data, "destination_category")
     destination = _pick(form_data, "destination")
+    from_unit = _pick(form_data, "from_unit")
 
     show_location = category in _MANUAL_CATEGORIES
-    show_destination = category in _DROPDOWN_CATEGORIES
+    if category == "other_unit":
+        show_destination = from_unit in _OTHER_UNIT_DESTINATIONS
+    else:
+        show_destination = category in _DROPDOWN_CATEGORIES
     show_load_size = bool(category) and (show_location or bool(destination))
     show_distance = bool(category) and (show_location or bool(destination))
     estimated_distance = _estimated_distance(category, destination) if show_distance else ""
 
     return {
-        "destination_options": _destination_options(category),
+        "destination_options": _destination_options(category, from_unit),
         "show_location_details": show_location,
         "show_destination": show_destination,
         "show_load_size": show_load_size,
