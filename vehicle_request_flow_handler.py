@@ -98,13 +98,10 @@ def _estimated_distance(category: str, destination: str) -> str:
 def _screen_data(form_data: dict) -> dict:
     category = _pick(form_data, "destination_category")
     destination = _pick(form_data, "destination")
-    vehicle_type = _pick(form_data, "vehicle_type")
 
     show_location = category in _MANUAL_CATEGORIES
     show_destination = category in _DROPDOWN_CATEGORIES
-    show_vehicle_type = bool(category) and (show_location or bool(destination))
-    show_hire_vehicle_type = show_vehicle_type and vehicle_type == "external_hire"
-    show_load_size = bool(vehicle_type)
+    show_load_size = bool(category) and (show_location or bool(destination))
     show_distance = bool(category) and (show_location or bool(destination))
     estimated_distance = _estimated_distance(category, destination) if show_distance else ""
 
@@ -112,8 +109,6 @@ def _screen_data(form_data: dict) -> dict:
         "destination_options": _destination_options(category),
         "show_location_details": show_location,
         "show_destination": show_destination,
-        "show_vehicle_type": show_vehicle_type,
-        "show_hire_vehicle_type": show_hire_vehicle_type,
         "show_load_size": show_load_size,
         "show_distance": show_distance,
         "estimated_distance": estimated_distance,
@@ -143,8 +138,6 @@ def build_vehicle_request_flow_response(flow_data: dict) -> dict:
             "destination_options": [],
             "show_location_details": False,
             "show_destination": False,
-            "show_vehicle_type": False,
-            "show_hire_vehicle_type": False,
             "show_load_size": False,
             "show_distance": False,
             "estimated_distance": "",

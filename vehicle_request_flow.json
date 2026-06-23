@@ -32,14 +32,6 @@
           "type": "boolean",
           "__example__": false
         },
-        "show_vehicle_type": {
-          "type": "boolean",
-          "__example__": false
-        },
-        "show_hire_vehicle_type": {
-          "type": "boolean",
-          "__example__": false
-        },
         "show_load_size": {
           "type": "boolean",
           "__example__": false
@@ -125,40 +117,6 @@
           },
           {
             "type": "RadioButtonsGroup",
-            "name": "vehicle_type",
-            "label": "Vehicle Type",
-            "required": "${data.show_vehicle_type}",
-            "visible": "${data.show_vehicle_type}",
-            "data-source": [
-              { "id": "in_house", "title": "Internal" },
-              { "id": "external_hire", "title": "External" }
-            ],
-            "on-select-action": {
-              "name": "data_exchange",
-              "payload": {
-                "from_unit": "${form.from_unit}",
-                "request_type": "${form.request_type}",
-                "destination_category": "${form.destination_category}",
-                "location_details": "${form.location_details}",
-                "destination": "${form.destination}",
-                "vehicle_type": "${form.vehicle_type}"
-              }
-            }
-          },
-          {
-            "type": "RadioButtonsGroup",
-            "name": "hire_vehicle_type",
-            "label": "Hire Vehicle Type",
-            "required": "${data.show_hire_vehicle_type}",
-            "visible": "${data.show_hire_vehicle_type}",
-            "data-source": [
-              { "id": "dost", "title": "Dost" },
-              { "id": "eicher", "title": "Eicher" },
-              { "id": "auto", "title": "Auto" }
-            ]
-          },
-          {
-            "type": "RadioButtonsGroup",
             "name": "load_size",
             "label": "Load Size",
             "required": "${data.show_load_size}",
@@ -224,8 +182,6 @@
                 "destination_category": "${form.destination_category}",
                 "location_details": "${form.location_details}",
                 "destination": "${form.destination}",
-                "vehicle_type": "${form.vehicle_type}",
-                "hire_vehicle_type": "${form.hire_vehicle_type}",
                 "load_size": "${form.load_size}",
                 "required_time": "${form.required_time}"
               }
