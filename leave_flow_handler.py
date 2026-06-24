@@ -129,8 +129,19 @@ def _other_dates_invalid(form_data: dict) -> str:
     return ""
 
 
+def _show_reason_details(form_data: dict) -> bool:
+    reason = _pick(form_data, "leave_reason")
+    return reason in ("health_issue", "health", "personal")
+
+
+def _reason_details_text(form_data: dict) -> str:
+    return str(form_data.get("reason_details") or "").strip()
+
+
 def _can_submit(form_data: dict) -> bool:
     if _pick(form_data, "leave_when") == "other" and _other_dates_invalid(form_data):
+        return False
+    if _show_reason_details(form_data) and not _reason_details_text(form_data):
         return False
     return True
 
@@ -147,6 +158,7 @@ def _screen_data(form_data: dict, phone: str) -> dict:
         "show_date_range": show_date_range,
         "show_duration": show_duration,
         "show_leave_counts": True,
+        "show_reason_details": _show_reason_details(form_data),
         "show_date_error": bool(date_error),
         "date_error_line": date_error,
         "can_submit": _can_submit(form_data),
@@ -188,6 +200,7 @@ def build_leave_flow_response(flow_data: dict) -> dict:
             "show_date_range": False,
             "show_duration": False,
             "show_leave_counts": True,
+            "show_reason_details": False,
             "show_date_error": False,
             "date_error_line": "",
             "can_submit": True,
