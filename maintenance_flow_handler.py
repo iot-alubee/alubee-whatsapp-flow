@@ -6,10 +6,10 @@ import json
 import logging
 
 from maintenance_data import (
+    all_issue_category_options,
     default_machine_type,
-    issue_category_options,
+    infer_machine_type,
     machine_no_options,
-    machine_type_options,
 )
 from users import get_user_by_phone, maintenance_user_context_from_token, phone_from_flow_token
 
@@ -62,40 +62,34 @@ def _user_context(flow_data: dict, form_data: dict) -> tuple[str, str, str]:
     return phone, dept.upper(), route.upper()
 
 
-def _screen_data(form_data: dict, flow_data: dict) -> dict:
+def _screen_data(form_data: dict, flow_data: dict, *, action: str = "") -> dict:
     expanded = _expand_form_data(form_data)
     phone, dept, route = _user_context(flow_data, expanded)
     dept_key = dept.upper() if dept else ""
     if dept_key == "FET":
         dept_key = "FETTLING"
 
-    machine_type = _pick(expanded, "machine_type") or default_machine_type(dept_key)
+    # Meta Flow Builder "Run" / publish validation often has no flow_token yet.
+    if not dept_key and action in _LOAD_ACTIONS:
+        dept_key = "PDC"
+        route = route or "JMD1"
+
     machine_no = _pick(expanded, "machine_no")
+    machine_type = (
+        _pick(expanded, "machine_type")
+        or infer_machine_type(dept_key, machine_no)
+        or default_machine_type(dept_key)
+    )
 
-    is_pdc = dept_key == "PDC"
-    show_machine_type_dropdown = bool(dept_key) and not is_pdc
-    show_machine_type_fixed = is_pdc
-    machine_type_display = "PDC" if is_pdc else ""
-
-    mtype_opts = machine_type_options(dept_key) if show_machine_type_dropdown else []
-    machine_opts = machine_no_options(dept_key, route, machine_type) if machine_type else []
-    issue_opts = issue_category_options(dept_key, machine_type) if machine_type else []
-
-    show_machine_no = bool(machine_type) and bool(machine_opts)
-    show_issue_category = bool(machine_type) and bool(issue_opts)
+    machine_opts = machine_no_options(dept_key, route) if dept_key else []
+    issue_opts = all_issue_category_options(dept_key) if dept_key else []
 
     return {
         "employee_phone": phone,
         "employee_department": dept_key,
         "employee_jmd_route": route,
-        "machine_type_options": mtype_opts,
         "machine_no_options": machine_opts,
         "issue_category_options": issue_opts,
-        "show_machine_type_dropdown": show_machine_type_dropdown,
-        "show_machine_type_fixed": show_machine_type_fixed,
-        "machine_type_display": machine_type_display,
-        "show_machine_no": show_machine_no,
-        "show_issue_category": show_issue_category,
     }
 
 
@@ -111,32 +105,32 @@ def build_maintenance_flow_response(flow_data: dict) -> dict:
         logger.warning("maintenance flow unexpected action=%s", action)
 
     try:
-        data = _screen_data(form_data, flow_data)
+        data = _screen_data(form_data, flow_data, action=action)
     except Exception:
         logger.exception("maintenance screen data failed action=%s", action)
         data = {
             "employee_phone": "",
             "employee_department": "",
             "employee_jmd_route": "",
-            "machine_type_options": [],
             "machine_no_options": [],
             "issue_category_options": [],
-            "show_machine_type_dropdown": False,
-            "show_machine_type_fixed": False,
-            "machine_type_display": "",
-            "show_machine_no": False,
-            "show_issue_category": False,
         }
 
+    expanded = _expand_form_data(form_data)
+    machine_no = _pick(expanded, "machine_no")
+    dept_key = data.get("employee_department") or ""
+    machine_type = (
+        _pick(expanded, "machine_type")
+        or infer_machine_type(dept_key, machine_no)
+        or default_machine_type(dept_key)
+        or "-"
+    )
     logger.info(
         "maintenance flow action=%s dept=%s route=%s machine_type=%s machines=%s issues=%s",
         action,
-        data.get("employee_department") or "-",
+        dept_key or "-",
         data.get("employee_jmd_route") or "-",
-        _pick(_expand_form_data(form_data), "machine_type") or default_machine_type(
-            data.get("employee_department") or ""
-        )
-        or "-",
+        machine_type,
         len(data.get("machine_no_options") or []),
         len(data.get("issue_category_options") or []),
     )
