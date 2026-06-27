@@ -3,6 +3,12 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime, timedelta, timezone
+
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    ZoneInfo = None  # type: ignore[misc, assignment]
 
 logger = logging.getLogger(__name__)
 
@@ -83,6 +89,42 @@ _OTHER_UNIT_DESTINATIONS: dict[str, dict[str, str]] = {
     "unit_ii": {"id": "unit_i", "title": "Unit I"},
 }
 
+_ALL_REQUIRED_TIME_SLOTS: tuple[str, ...] = (
+    "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+    "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00",
+    "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30",
+    "19:00", "19:30", "20:00",
+)
+
+
+def _ist_now() -> datetime:
+    if ZoneInfo is not None:
+        return datetime.now(ZoneInfo("Asia/Kolkata"))
+    return datetime.now(timezone.utc) + timedelta(hours=5, minutes=30)
+
+
+def _slot_minutes(slot_id: str) -> int:
+    hour, minute = map(int, slot_id.split(":"))
+    return hour * 60 + minute
+
+
+def _format_slot_title(slot_id: str) -> str:
+    hour, minute = map(int, slot_id.split(":"))
+    hour12 = hour % 12 or 12
+    ampm = "AM" if hour < 12 else "PM"
+    return f"{hour12}:{minute:02d} {ampm}"
+
+
+def required_time_options(now: datetime | None = None) -> list[dict[str, str]]:
+    """30-min slots strictly after current IST time, through 8:00 PM."""
+    current = now or _ist_now()
+    now_minutes = current.hour * 60 + current.minute
+    return [
+        {"id": slot_id, "title": _format_slot_title(slot_id)}
+        for slot_id in _ALL_REQUIRED_TIME_SLOTS
+        if _slot_minutes(slot_id) > now_minutes
+    ]
+
 
 def _pick(data: dict, key: str) -> str:
     val = data.get(key)
@@ -137,6 +179,7 @@ def _screen_data(form_data: dict) -> dict:
 
     return {
         "destination_options": _destination_options(category, from_unit),
+        "required_time_options": required_time_options(),
         "show_location_details": show_location,
         "show_destination": show_destination,
         "show_load_size": show_load_size,
@@ -166,6 +209,7 @@ def build_vehicle_request_flow_response(flow_data: dict) -> dict:
         )
         data = {
             "destination_options": [],
+            "required_time_options": required_time_options(),
             "show_location_details": False,
             "show_destination": False,
             "show_load_size": False,

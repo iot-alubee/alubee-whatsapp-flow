@@ -43,6 +43,20 @@
         "estimated_distance": {
           "type": "string",
           "__example__": ""
+        },
+        "required_time_options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" }
+            }
+          },
+          "__example__": [
+            { "id": "11:00", "title": "11:00 AM" },
+            { "id": "11:30", "title": "11:30 AM" }
+          ]
         }
       },
       "layout": {
@@ -75,7 +89,8 @@
             "required": true,
             "data-source": [
               { "id": "delivery", "title": "Delivery" },
-              { "id": "pickup", "title": "Pickup" }
+              { "id": "pickup", "title": "Pickup" },
+              { "id": "delivery_and_pickup", "title": "Delivery and Pickup" }
             ]
           },
           {
@@ -155,32 +170,7 @@
             "name": "required_time",
             "label": "Required Time",
             "required": true,
-            "data-source": [
-              { "id": "08:30", "title": "8:30 AM" },
-              { "id": "09:00", "title": "9:00 AM" },
-              { "id": "09:30", "title": "9:30 AM" },
-              { "id": "10:00", "title": "10:00 AM" },
-              { "id": "10:30", "title": "10:30 AM" },
-              { "id": "11:00", "title": "11:00 AM" },
-              { "id": "11:30", "title": "11:30 AM" },
-              { "id": "12:00", "title": "12:00 PM" },
-              { "id": "12:30", "title": "12:30 PM" },
-              { "id": "13:00", "title": "1:00 PM" },
-              { "id": "13:30", "title": "1:30 PM" },
-              { "id": "14:00", "title": "2:00 PM" },
-              { "id": "14:30", "title": "2:30 PM" },
-              { "id": "15:00", "title": "3:00 PM" },
-              { "id": "15:30", "title": "3:30 PM" },
-              { "id": "16:00", "title": "4:00 PM" },
-              { "id": "16:30", "title": "4:30 PM" },
-              { "id": "17:00", "title": "5:00 PM" },
-              { "id": "17:30", "title": "5:30 PM" },
-              { "id": "18:00", "title": "6:00 PM" },
-              { "id": "18:30", "title": "6:30 PM" },
-              { "id": "19:00", "title": "7:00 PM" },
-              { "id": "19:30", "title": "7:30 PM" },
-              { "id": "20:00", "title": "8:00 PM" }
-            ]
+            "data-source": "${data.required_time_options}"
           },
           {
             "type": "Footer",
