@@ -35,6 +35,7 @@ SUPPLIER_DESTINATIONS: list[dict[str, str]] = [
     {"id": "madhumitha", "title": "Madhumitha"},
     {"id": "rashi", "title": "Rashi"},
     {"id": "rajeshwari_layout", "title": "Rajeshwari Layout"},
+    {"id": "kamal", "title": "Kamal"},
     {"id": "local_hosur", "title": "Hosur Local"},
     {"id": "ayyappa_gas_agency", "title": "Ayyappa Gas Agency"},
     {"id": "md_office", "title": "MD Office"},
