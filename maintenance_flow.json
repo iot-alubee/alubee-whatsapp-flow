@@ -69,7 +69,7 @@
           {
             "type": "PhotoPicker",
             "name": "issue_photo",
-            "label": "Issue photo",
+            "label": "Issue photo (required)",
             "photo-source": "camera_gallery",
             "min-uploaded-photos": 1,
             "max-uploaded-photos": 1,
