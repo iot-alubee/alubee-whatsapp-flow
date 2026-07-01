@@ -47,6 +47,17 @@
             }
           },
           "__example__": []
+        },
+        "time_required_options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" }
+            }
+          },
+          "__example__": []
         }
       },
       "layout": {
@@ -75,12 +86,12 @@
             "visible": "${data.show_purpose}"
           },
           {
-            "type": "TextInput",
+            "type": "Dropdown",
             "name": "time_required",
-            "label": "Approximate Time Required (In Hours)",
-            "input-type": "number",
+            "label": "Approximate Time Required",
             "required": "${data.show_time_required}",
-            "visible": "${data.show_time_required}"
+            "visible": "${data.show_time_required}",
+            "data-source": "${data.time_required_options}"
           },
           {
             "type": "RadioButtonsGroup",

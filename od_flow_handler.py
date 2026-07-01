@@ -19,6 +19,15 @@ VISITING_TO_OPTIONS: list[dict[str, str]] = [
     {"id": "md_home", "title": "MD Home"},
 ]
 
+TIME_REQUIRED_OPTIONS: list[dict[str, str]] = [
+    {"id": "15_mins", "title": "15 mins"},
+    {"id": "30_mins", "title": "30 mins"},
+    {"id": "1_hour", "title": "1 Hour"},
+    {"id": "2_hours", "title": "2 Hours"},
+    {"id": "3_hours", "title": "3 Hours"},
+    {"id": "over_3_hours", "title": "> 3 Hours"},
+]
+
 
 def _pick(data: dict, key: str) -> str:
     val = data.get(key)
@@ -44,6 +53,7 @@ def _screen_data(form_data: dict) -> dict:
 
     return {
         "visiting_to_options": VISITING_TO_OPTIONS,
+        "time_required_options": TIME_REQUIRED_OPTIONS,
         "show_purpose": show_purpose,
         "show_time_required": show_time_required,
         "show_company_vehicle": show_company_vehicle,
@@ -66,6 +76,7 @@ def build_od_flow_response(flow_data: dict) -> dict:
         logger.exception("screen data build failed action=%s data=%s", action, form_data)
         data = {
             "visiting_to_options": VISITING_TO_OPTIONS,
+            "time_required_options": TIME_REQUIRED_OPTIONS,
             "show_purpose": False,
             "show_time_required": False,
             "show_company_vehicle": False,
