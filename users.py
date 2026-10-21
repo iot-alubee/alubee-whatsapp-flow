@@ -104,6 +104,26 @@ def maintenance_user_context_from_token(token: str) -> tuple[str, str, str]:
     return phone, dept, route
 
 
+def tool_breakdown_user_context_from_token(token: str) -> tuple[str, str, str]:
+    """Parse tool_breakdown_{phone} or tool_breakdown_{phone}_{dept}_{route} flow tokens."""
+    t = (token or "").strip()
+    if not t.lower().startswith("tool_breakdown_"):
+        return "", "", ""
+    parts = [p for p in t[15:].split("_") if p]
+    if not parts:
+        return "", "", ""
+    phone = _digits(parts[0])
+    if len(phone) != 10:
+        return "", "", ""
+    if len(parts) < 3:
+        return phone, "", ""
+    dept = parts[1].strip().upper()
+    if dept == "FET":
+        dept = "FETTLING"
+    route = parts[2].strip().upper()
+    return phone, dept, route
+
+
 def get_user_by_phone(phone: str) -> dict | None:
     wa_id = wa_id_from_phone(phone)
     if not wa_id:

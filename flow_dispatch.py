@@ -9,6 +9,7 @@ from vehicle_request_flow_handler import (
     build_vehicle_request_flow_response,
 )
 from maintenance_flow_handler import build_maintenance_flow_response
+from tool_breakdown_flow_handler import build_tool_breakdown_flow_response
 from od_flow_handler import build_od_flow_response
 from permission_flow_handler import build_permission_flow_response
 from visitor_flow_handler import build_visitor_flow_response
@@ -25,6 +26,8 @@ def build_flow_response(flow_data: dict) -> dict:
         return build_it_flow_response(flow_data)
     if screen.startswith("MAINTENANCE") or token.startswith("maintenance_"):
         return build_maintenance_flow_response(flow_data)
+    if screen.startswith("TOOL_BREAKDOWN") or token.startswith("tool_breakdown_"):
+        return build_tool_breakdown_flow_response(flow_data)
     if (
         screen.startswith("VEHICLE")
         or screen.startswith("LOGISTICS")

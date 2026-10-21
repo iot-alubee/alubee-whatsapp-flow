@@ -35,29 +35,17 @@ def _get_db():
         return None
 
 
-def _vehicles_out_ids(db) -> set[str]:
-    out: set[str] = set()
-    try:
-        for snap in db.collection("requests").where("type", "==", "OD").stream():
-            d = snap.to_dict() or {}
-            vid = (d.get("company_vehicle_id") or "").strip().upper()
-            if vid and d.get("security_out_at") and not d.get("security_in_at"):
-                out.add(vid)
-    except Exception:
-        logger.exception("vehicles out query failed")
-    return out
-
-
 def fetch_available_vehicles() -> list[dict[str, str]]:
     """
     Dropdown items for WhatsApp Flow: ``{"id": vehicle_id, "title": label}``.
+
+    Every active vehicle is listed, including ones already out on another OD.
     Falls back to demo vehicles when Firestore is unavailable.
     """
     db = _get_db()
     if not db:
         return _demo_vehicles()
 
-    out_ids = _vehicles_out_ids(db)
     available: list[dict[str, str]] = []
     try:
         for snap in db.collection("vehicles").stream():
@@ -65,7 +53,7 @@ def fetch_available_vehicles() -> list[dict[str, str]]:
             if d.get("active") is False:
                 continue
             vid = (d.get("vehicle_id") or snap.id or "").strip().upper()
-            if not vid or vid in out_ids:
+            if not vid:
                 continue
             desc = (d.get("description") or d.get("vehicle") or vid).strip()
             title = f"{desc} ({vid})" if desc != vid else vid
